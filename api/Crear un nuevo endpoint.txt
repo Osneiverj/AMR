@@ -1,0 +1,6 @@
+Añadir algo nuevo = crear otra carpeta dentro de domain/ con
+model.py, service.py y router.py.
+FastAPI los carga automáticamente en el arranque; no hay que registrar nada a mano.
+
+mkdir api/app/domain/stations
+touch api/app/domain/stations/{model,service,router}.py

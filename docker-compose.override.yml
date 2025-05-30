@@ -1,0 +1,15 @@
+services:
+  ui_gateway:
+    build: null                 # ← anula la sección build del base
+    image: node:18-alpine
+    command: sh -c "apk add --no-cache npm && npm install && npm run dev -- --host"
+    working_dir: /app
+    volumes:
+      - ./ui_web:/app           # monta el código
+    ports:
+      - "5173:5173"             # hot-reload
+    environment:
+      - VITE_ROSBRIDGE_URL=ws://localhost:9090
+      - VITE_API_URL=http://rest_api:5000
+    networks:
+      - ros_net

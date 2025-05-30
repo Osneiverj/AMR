@@ -1,0 +1,38 @@
+services:
+  ui_gateway:
+    build:                # <– usa el Dockerfile dentro de ui_web/
+      context: ./ui_web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"         # imagen Nginx
+    environment:
+      - VITE_ROSBRIDGE_URL=ws://localhost:9090
+      - VITE_API_URL=http://rest_api:5000
+    networks: [ros_net]
+
+    ### MongoDB ### ### REST API ###
+  mongodb:
+    image: mongo:7
+    volumes: [mongo_data:/data/db, ./maps:/maps]
+    networks: [ros_net]
+    environment:
+      MONGO_INITDB_DATABASE: agv
+
+  api:
+    build: ./api
+    depends_on: [mongodb]
+    environment:
+      AGV_MONGO_URI: mongodb://mongodb:27017/agv
+      AGV_MAPS_DIR: /maps
+      AGV_CORS_ORIGINS: http://localhost:5173
+    volumes: [./maps:/maps]
+    networks: [ros_net]
+    ports: ["5000:8000"]
+
+volumes: { mongo_data: {} }
+
+
+networks:
+  ros_net:
+    name: ros_net
+    external: true

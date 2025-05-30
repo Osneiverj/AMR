@@ -1,0 +1,5 @@
+# construir solo la API
+docker compose -f docker-compose.api.yml build api
+
+# levantar stack completo (simulador + API)
+docker compose -f docker-compose.yml -f docker-compose.api.yml up
