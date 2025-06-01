@@ -1,7 +1,8 @@
-fastapi==0.109.2          # usa Pydantic v1
+fastapi==0.109.2
 uvicorn[standard]==0.29.0
 
-beanie==1.29.0            # necesita pydantic >=1.10.18
-motor==3.4.0              # driver async; instala pymongo 4.9
-pydantic==1.10.18         # satisface FastAPI y Beanie
-python-multipart==0.0.9   # para subir archivos
+pymongo==4.6.3  # Fijamos pymongo explícitamente
+motor==3.4.0    # Mantenemos motor 3.4.0 que es compatible con pymongo 4.6.3
+beanie==1.29.0
+pydantic==1.10.18 # Beanie 1.29.0 necesita pydantic >=1.10.12, así que esto está bien.
+python-multipart==0.0.9
