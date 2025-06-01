@@ -6,3 +6,10 @@ motor==3.4.0    # Mantenemos motor 3.4.0 que es compatible con pymongo 4.6.3
 beanie==1.29.0
 pydantic==1.10.18 # Beanie 1.29.0 necesita pydantic >=1.10.12, así que esto está bien.
 python-multipart==0.0.9
+
+# Dependencias de prueba
+pytest
+pytest-asyncio
+httpx
+# Opcional: mongomock si quieres mockear MongoDB para pruebas unitarias rápidas
+# mongomock

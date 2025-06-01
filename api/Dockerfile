@@ -1,6 +1,47 @@
+# api/Dockerfile
+
+# 1. Usar una imagen base oficial de Python específica y delgada
 FROM python:3.11-slim
+
+# 2. Establecer variables de entorno para Python (opcional pero recomendado)
+ENV PYTHONDONTWRITEBYTECODE 1  # Evita que Python escriba archivos .pyc
+ENV PYTHONUNBUFFERED 1         # Fuerza que los logs de Python salgan directamente, útil para Docker
+
+# 3. Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY app ./app
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# 4. Crear un grupo y un usuario no-root para ejecutar la aplicación
+#    (Mejora la seguridad. UID/GID 1000 es común para el primer usuario no-root)
+RUN groupadd -r appgroup --gid 1000 && \
+    useradd -r -g appgroup --uid 1000 --no-create-home appuser
+    # -r crea un usuario del sistema
+    # --no-create-home porque no necesitamos un directorio home para esta app simple
+    # WORKDIR /app ya es el directorio de la app
+
+# 5. Copiar el archivo de dependencias PRIMERO
+COPY --chown=appuser:appgroup requirements.txt .
+
+# 6. Instalar las dependencias
+#    (Como appuser, si pip necesita escribir en algún directorio global,
+#     podría fallar. Si es así, se instala como root ANTES de USER appuser
+#     o se asegura que el directorio de instalación de pip sea escribible por appuser.
+#     Para instalaciones globales de paquetes, es común hacerlo como root
+#     o en un virtualenv propiedad del usuario no-root.)
+#
+#     Opción A: Instalar como root (más simple si no hay problemas de seguridad específicos con los paquetes)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# 7. Copiar el resto del código de la aplicación al directorio de trabajo
+#    Usa --chown para que los archivos sean propiedad del usuario no-root directamente
+COPY --chown=appuser:appgroup app ./app
+
+# 8. Cambiar al usuario no-root
+USER appuser
+
+# 9. Exponer el puerto en el que corre la aplicación DENTRO del contenedor
+EXPOSE 8000
+
+# 10. Comando para ejecutar la aplicación
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Añadido --workers 1 como un punto de partida razonable para Uvicorn

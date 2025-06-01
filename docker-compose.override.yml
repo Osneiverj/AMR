@@ -10,6 +10,6 @@ services:
       - "5173:5173"             # hot-reload
     environment:
       - VITE_ROSBRIDGE_URL=ws://localhost:9090
-      - VITE_API_URL=http://rest_api:5000
+      - VITE_API_URL=http://api:8000
     networks:
       - ros_net
