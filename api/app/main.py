@@ -16,7 +16,9 @@ from app.domain.maps.router import router as maps_router
 from app.domain.missions.router import router as missions_router
 from app.domain.points.router import router as points_router
 from app.domain.users.router import router as auth_router
+
 from app.domain.users.service import ensure_default_admin
+
 
 # Configura el logging ANTES de que cualquier otra cosa suceda,
 # especialmente antes de crear la instancia de FastAPI.

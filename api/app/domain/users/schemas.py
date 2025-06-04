@@ -10,6 +10,5 @@ class UserOut(BaseModel):
     username: str
     role: str
 
-
 class PasswordChange(BaseModel):
     new_password: str

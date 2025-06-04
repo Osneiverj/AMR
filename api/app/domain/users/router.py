@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
+
 from .schemas import UserCreate, UserOut, PasswordChange
+
 from .service import (
     authenticate_user,
     create_token,
@@ -9,6 +11,7 @@ from .service import (
     get_current_active_user,
     require_admin,
     update_password,
+
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -19,6 +22,7 @@ async def register(
     user_in: UserCreate,
     current_user=Depends(require_admin),
 ):
+
     user = await create_user(user_in.username, user_in.password, user_in.role)
     return UserOut(id=str(user.id), username=user.username, role=user.role)
 
@@ -44,3 +48,4 @@ async def change_password(
 ):
     await update_password(current_user, data.new_password)
     return {"status": "ok"}
+
