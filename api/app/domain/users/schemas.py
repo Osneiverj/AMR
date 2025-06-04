@@ -9,3 +9,6 @@ class UserOut(BaseModel):
     id: str
     username: str
     role: str
+
+class PasswordChange(BaseModel):
+    new_password: str
