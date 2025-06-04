@@ -6,6 +6,7 @@ from beanie import init_beanie, Document # Document ya debería estar importado 
 from app.domain.maps.model import Map
 from app.domain.missions.model import Mission
 from app.domain.points.model import Point
+from app.domain.users.model import User
 # Añade aquí cualquier otro modelo Beanie que crees en el futuro
 # from app.domain.otro_modulo.model import OtroModelo
 
@@ -18,6 +19,7 @@ async def init_db():
         Map,
         Mission,
         Point,
+        User,
         # OtroModelo,
         # ...y así sucesivamente
     ]

@@ -5,15 +5,18 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
+from datetime import datetime
+
 from app.core.config import settings
 from app.core.db import init_db
-# Cambia el import para que coincida con el nuevo nombre de archivo/función
-from app.core.logging_config import setup_logging_config 
+from app.core.logging_config import setup_logging_config
 
 # Si decidiste usar la carga explícita de routers (Paso 4)
 from app.domain.maps.router import router as maps_router
 from app.domain.missions.router import router as missions_router
 from app.domain.points.router import router as points_router
+from app.domain.users.router import router as auth_router
+from app.domain.users.service import ensure_default_admin
 
 # Configura el logging ANTES de que cualquier otra cosa suceda,
 # especialmente antes de crear la instancia de FastAPI.
@@ -38,6 +41,7 @@ app.add_middleware(
 )
 
 # Routers (explícitos como en Paso 4)
+app.include_router(auth_router)
 app.include_router(maps_router)
 app.include_router(missions_router)
 app.include_router(points_router)
@@ -76,6 +80,7 @@ async def startup_event():
         extra={"props": {"app_name": app.title, "app_version": app.version}}
     )
     await init_db()
+    await ensure_default_admin(settings.default_admin_username, settings.default_admin_password)
     logger.info("Base de datos inicializada.")
     logger.info("Aplicación FastAPI iniciada correctamente.")
 
