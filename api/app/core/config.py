@@ -10,6 +10,9 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO" # Nivel de log por defecto
 
+    default_admin_username: str = "admin"
+    default_admin_password: str = "admin"
+
     class Config:
         env_prefix = "AGV_"
         # Para Pydantic V1, si usas .env files, necesitarías:

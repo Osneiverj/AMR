@@ -1,6 +1,7 @@
 import { Routes, Route, NavLink } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import Users from './pages/Users';
 import Login from './pages/Login';
 import ProtectedRoute from './ProtectedRoute';
 import { useAuth } from './AuthContext';
@@ -21,6 +22,9 @@ export default function App() {
           <NavLink to="/settings" className={active}>
             Settings
           </NavLink>
+          <NavLink to="/users" className={active}>
+            Users
+          </NavLink>
           {token && (
             <button onClick={logout} className="ml-auto px-4 py-2 text-sm">
               Logout
@@ -34,6 +38,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

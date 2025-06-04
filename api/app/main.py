@@ -16,6 +16,7 @@ from app.domain.maps.router import router as maps_router
 from app.domain.missions.router import router as missions_router
 from app.domain.points.router import router as points_router
 from app.domain.users.router import router as auth_router
+from app.domain.users.service import ensure_default_admin
 
 # Configura el logging ANTES de que cualquier otra cosa suceda,
 # especialmente antes de crear la instancia de FastAPI.
@@ -79,6 +80,7 @@ async def startup_event():
         extra={"props": {"app_name": app.title, "app_version": app.version}}
     )
     await init_db()
+    await ensure_default_admin(settings.default_admin_username, settings.default_admin_password)
     logger.info("Base de datos inicializada.")
     logger.info("Aplicación FastAPI iniciada correctamente.")
 

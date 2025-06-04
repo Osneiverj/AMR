@@ -46,6 +46,18 @@ async def create_user(username: str, password: str, role: str = "user") -> User:
     return user
 
 
+async def update_password(user: User, new_password: str) -> User:
+    user.hashed_password = get_password_hash(new_password)
+    await user.save()
+    return user
+
+
+async def ensure_default_admin(username: str, password: str):
+    existing = await User.find_one(User.username == username)
+    if not existing:
+        await create_user(username, password, role="admin")
+
+
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
