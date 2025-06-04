@@ -25,4 +25,4 @@ async def delete_point(point_id: str): # Cambiado para aceptar str directamente
     if point:
         await point.delete()
         return True # O el objeto eliminado 'point' si prefieres
-    return False # O None
+    return False
