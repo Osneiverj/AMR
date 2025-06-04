@@ -1,14 +1,16 @@
 # api/app/domain/maps/router.py
-from fastapi import APIRouter, UploadFile, HTTPException, File, Form # File y Form para multipart
+from fastapi import APIRouter, UploadFile, HTTPException, File, Form, Depends # File y Form para multipart
 from .service import save, MAP_DIR
 from .model import Map
 import shutil
+from app.domain.users.service import get_current_active_user, require_admin
 from typing import Annotated # Para FastAPI 0.109+ con Pydantic v1
 
 router = APIRouter(prefix="/maps", tags=["maps"])
 
 @router.get("/", response_model=list[Map])
-async def list_maps():
+async def list_maps(current_user = Depends(get_current_active_user)):
+
     return await Map.find_all().to_list()
 
 # Para FastAPI 0.109.2, es mejor ser explícito con Form y File
@@ -16,7 +18,8 @@ async def list_maps():
 async def upload_map(
     name: Annotated[str, Form()],
     pgm: Annotated[UploadFile, File()],
-    yaml: Annotated[UploadFile, File()]
+    yaml: Annotated[UploadFile, File()],
+    current_user = Depends(require_admin)
 ):
     if await Map.find_one(Map.name == name):
         raise HTTPException(status_code=409, detail="Nombre de mapa existente")
