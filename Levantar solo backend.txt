@@ -3,3 +3,7 @@ docker compose -f docker-compose.api.yml build api
 
 # levantar stack completo (simulador + API)
 docker compose -f docker-compose.yml -f docker-compose.api.yml up
+
+# para ejecutar las pruebas se necesita MongoDB
+docker compose -f docker-compose.api.yml up -d mongodb
+

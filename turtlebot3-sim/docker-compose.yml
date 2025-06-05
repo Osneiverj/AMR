@@ -55,7 +55,17 @@ services:
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
                rviz2 -d /opt/ros/humble/share/turtlebot3_description/rviz/model.rviz"
+  mongodb:
+    image: mongo:7
+    networks: [ros_net]
+    volumes:
+      - mongo_data:/data/db
+      - ./maps:/maps
+    environment:
+      MONGO_INITDB_DATABASE: agv
 networks:
   ros_net:
     name: ros_net
     external: true
+volumes:
+  mongo_data:
