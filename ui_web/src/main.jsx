@@ -8,12 +8,12 @@ import './styles.css'; // Tailwind entry (crear en src/ o usar index.css)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <DataProvider>
-      <BrowserRouter>
-        <AuthProvider>
+    <AuthProvider>
+      <DataProvider>
+        <BrowserRouter>
           <App />
-        </AuthProvider>
-      </BrowserRouter>
-    </DataProvider>
+        </BrowserRouter>
+      </DataProvider>
+    </AuthProvider>
   </React.StrictMode>
 );

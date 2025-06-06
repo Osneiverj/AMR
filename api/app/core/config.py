@@ -5,8 +5,10 @@ from typing import List, Union # Union para Pydantic V1
 class Settings(BaseSettings):
     mongo_uri: str = "mongodb://mongodb:27017/agv"
     maps_dir: str  = "/maps"
+    # URL para conectarse al servidor rosbridge
+    rosbridge_url: str = "ws://tb3_sim:9090"
     # Para Pydantic V1, Union[str, List[str]] es más típico que str | list[str]
-    cors_origins: Union[str, List[str]] = "*" 
+    cors_origins: Union[str, List[str]] = "*"
 
     LOG_LEVEL: str = "INFO" # Nivel de log por defecto
 

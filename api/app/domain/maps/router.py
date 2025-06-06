@@ -1,10 +1,10 @@
 # api/app/domain/maps/router.py
 from fastapi import APIRouter, UploadFile, HTTPException, File, Form, Depends # File y Form para multipart
-from .service import save, MAP_DIR
+from .service import save, MAP_DIR, list_available_maps, activate_map
 from .model import Map
 import shutil
 from app.domain.users.service import get_current_active_user, require_admin
-from typing import Annotated # Para FastAPI 0.109+ con Pydantic v1
+from typing import Annotated, List
 
 router = APIRouter(prefix="/maps", tags=["maps"])
 
@@ -12,6 +12,28 @@ router = APIRouter(prefix="/maps", tags=["maps"])
 async def list_maps(current_user = Depends(get_current_active_user)):
 
     return await Map.find_all().to_list()
+
+
+@router.get("/available", response_model=List[str])
+async def get_available_maps(current_user = Depends(get_current_active_user)):
+    """Devuelve los nombres de mapas presentes en el filesystem."""
+    return list_available_maps()
+
+
+@router.post("/{map_name}/activate", status_code=200)
+async def activate_map_endpoint(map_name: str, current_user = Depends(require_admin)):
+    """Activa un mapa existente en ROS."""
+    try:
+        result = await activate_map(map_name)
+        if result.get('result') == 0:
+            return {"message": f"Mapa '{map_name}' activado correctamente."}
+        raise HTTPException(status_code=400, detail=f"Fallo al activar el mapa en ROS: {result.get('text', 'Error desconocido')}")
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ConnectionError as e:
+        raise HTTPException(status_code=503, detail=f"Error de comunicación con ROS: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {e}")
 
 # Para FastAPI 0.109.2, es mejor ser explícito con Form y File
 @router.post("/", response_model=Map, status_code=201)

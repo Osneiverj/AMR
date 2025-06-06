@@ -9,6 +9,8 @@ python-multipart==0.0.9
 python-jose[cryptography]
 passlib[bcrypt]
 
+roslibpy==1.4.0
+
 # Dependencias de prueba
 pytest
 pytest-asyncio
