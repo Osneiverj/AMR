@@ -1,9 +1,5 @@
 import { Routes, Route, NavLink } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import Users from './pages/Users';
-
-import Login from './pages/Login';
+import { Dashboard, Settings, Users, Maps, Points, Missions, Login } from './pages';
 import ProtectedRoute from './ProtectedRoute';
 import { useAuth } from './AuthContext';
 
@@ -35,15 +31,38 @@ export default function App() {
         </nav>
       </header>
 
-      <main className="flex-1 container mx-auto p-4">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-
-        </Routes>
-      </main>
+      <div className="flex flex-1">
+        <aside className="w-48 bg-gray-100 p-4">
+          <ul className="space-y-2">
+            <li>
+              <NavLink to="/maps" className={active}>
+                Mapas
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/points" className={active}>
+                Puntos
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/missions" className={active}>
+                Misiones
+              </NavLink>
+            </li>
+          </ul>
+        </aside>
+        <main className="flex-1 container mx-auto p-4">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+            <Route path="/maps" element={<ProtectedRoute><Maps /></ProtectedRoute>} />
+            <Route path="/points" element={<ProtectedRoute><Points /></ProtectedRoute>} />
+            <Route path="/missions" element={<ProtectedRoute><Missions /></ProtectedRoute>} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }

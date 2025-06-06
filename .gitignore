@@ -9,6 +9,7 @@ venv/
 pip-selfcheck.json
 *.egg-info/
 .env
+!ui_web/.env
 
 # Node / React
 node_modules/
