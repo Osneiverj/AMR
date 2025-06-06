@@ -25,6 +25,7 @@ services:
       AGV_MONGO_URI: mongodb://mongodb:27017/agv
       AGV_MAPS_DIR: /maps
       AGV_CORS_ORIGINS: http://localhost:5173
+      AGV_ROSBRIDGE_URL: ws://tb3_sim:9090
     volumes: [./maps:/maps]
     networks: [ros_net]
     ports: ["5000:8000"]

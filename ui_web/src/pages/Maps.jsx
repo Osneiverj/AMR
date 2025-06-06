@@ -1,54 +1,79 @@
-import { useRef } from "react";
+import { useState, useEffect } from "react";
 import { useData } from "../context/DataContext";
 import { MapsAPI } from "../services/api";
+import { useAuth } from "../AuthContext";
 
 export default function Maps() {
-  const { maps, setMaps, setSelectedMap } = useData();
-  const nameRef = useRef();
-  const pgmRef = useRef();
-  const yamlRef = useRef();
+  const { setSelectedMap } = useData();
+  const { token, user } = useAuth();
 
-  const upload = async e => {
-    e.preventDefault();
-    await MapsAPI.upload(
-      nameRef.current.value,
-      pgmRef.current.files[0],
-      yamlRef.current.files[0]
-    );
-    setMaps(await MapsAPI.list());
-    e.target.reset();
+  const [availableMaps, setAvailableMaps] = useState([]);
+  const [selectedLocalMap, setSelectedLocalMap] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (token) {
+      MapsAPI.listAvailable(token)
+        .then(maps => {
+          setAvailableMaps(maps);
+          if (maps.length > 0) setSelectedLocalMap(maps[0]);
+        })
+        .catch(err => setMessage(`Error al cargar mapas: ${err.message}`));
+    }
+  }, [token]);
+
+  const handleActivateMap = async () => {
+    if (!selectedLocalMap) {
+      setMessage("Por favor, selecciona un mapa.");
+      return;
+    }
+    setIsLoading(true);
+    setMessage(`Activando el mapa '${selectedLocalMap}'...`);
+    try {
+      const res = await MapsAPI.activate(selectedLocalMap, token);
+      setMessage(res.message || "Mapa activado con éxito.");
+      // opcional: establece en contexto el mapa seleccionado
+      setSelectedMap(null); // limpiar selección previa
+    } catch (err) {
+      setMessage(`Error al activar el mapa: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">Mapas</h2>
-      <form onSubmit={upload} className="flex gap-2 flex-wrap">
-        <input ref={nameRef} placeholder="Nombre" required className="input" />
-        <input ref={pgmRef} type="file" accept=".pgm" required />
-        <input ref={yamlRef} type="file" accept=".yaml" required />
-        <button className="btn">Subir</button>
-      </form>
-      <ul className="space-y-1">
-        {maps.map(m => (
-          <li key={m._id} className="flex justify-between">
-            <span
-              onClick={() => setSelectedMap(m._id)}
-              className="cursor-pointer hover:underline"
-            >
-              {m.name}
-            </span>
-            <button
-              onClick={async () => {
-                await MapsAPI.delete(m.name);
-                setMaps(await MapsAPI.list());
-              }}
-              className="text-red-600"
-            >
-              🗑
-            </button>
-          </li>
-        ))}
-      </ul>
+      <h2 className="text-xl font-semibold">Gestión de Mapas</h2>
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h3 className="font-medium mb-2">Activar Mapa en ROS</h3>
+        <div className="flex gap-2 items-center">
+          <select
+            value={selectedLocalMap}
+            onChange={e => setSelectedLocalMap(e.target.value)}
+            className="input flex-grow"
+            disabled={availableMaps.length === 0}
+          >
+            {availableMaps.length === 0 ? (
+              <option>No hay mapas disponibles</option>
+            ) : (
+              availableMaps.map(m => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))
+            )}
+          </select>
+          <button
+            onClick={handleActivateMap}
+            disabled={isLoading || availableMaps.length === 0}
+            className="btn-primary"
+          >
+            {isLoading ? "Activando..." : "🚀 Activar Mapa"}
+          </button>
+        </div>
+      </div>
+      {message && <p className="text-gray-600 bg-gray-100 p-2 rounded">{message}</p>}
     </div>
   );
 }
