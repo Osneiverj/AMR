@@ -72,7 +72,7 @@ async def activate_map(map_name: str) -> dict:
         await asyncio.wait_for(asyncio.to_thread(ros_client.run), timeout=5.0)
         logger.info(f"Conectado a ROSbridge en {settings.rosbridge_url}")
 
-        service = roslibpy.Service(ros_client, '/map_server/load_map', 'nav2_msgs/LoadMap')
+        service = roslibpy.Service(ros_client, '/ui/load_map', 'nav2_msgs/LoadMap')
         request = roslibpy.ServiceRequest({'map_url': f"/root/maps/{map_name}.yaml"})
 
         loop = asyncio.get_running_loop()

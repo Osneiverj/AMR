@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>orchestrator</name>
+  <version>0.1.0</version>
+  <description>UI orchestrator node</description>
+  <maintainer email="user@example.com">user</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>lifecycle_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>slam_toolbox_msgs</depend>
+  <exec_depend>setuptools</exec_depend>
+</package>
