@@ -1,7 +1,10 @@
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
-async function req(method, url, body, isForm = false) {
-  const init = { method, headers: {} };
+async function req(method, url, body, isForm = false, token) {
+  const init = {
+    method,
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  };
   if (body) {
     if (isForm) {
       init.body = body;
@@ -16,25 +19,27 @@ async function req(method, url, body, isForm = false) {
 }
 
 export const MapsAPI = {
-  list: () => req("GET", "/maps"),
-  upload: (name, pgm, yaml) => {
+  list: token => req("GET", "/maps", null, false, token),
+  upload: (name, pgm, yaml, token) => {
     const f = new FormData();
     f.append("name", name);
     f.append("pgm", pgm);
     f.append("yaml", yaml);
-    return req("POST", "/maps", f, true);
+    return req("POST", "/maps", f, true, token);
   },
-  delete: name => req("DELETE", `/maps/${name}`)
+  delete: (name, token) => req("DELETE", `/maps/${name}`, null, false, token),
+  listAvailable: token => req("GET", "/maps/available", null, false, token),
+  activate: (mapName, token) => req("POST", `/maps/${mapName}/activate`, null, false, token)
 };
 
 export const PointsAPI = {
-  list: mapId => req("GET", `/points${mapId ? `?map_id=${mapId}` : ""}`),
-  create: p => req("POST", "/points", p),
-  delete: id => req("DELETE", `/points/${id}`)
+  list: (mapId, token) => req("GET", `/points${mapId ? `?map_id=${mapId}` : ""}`, null, false, token),
+  create: (p, token) => req("POST", "/points", p, false, token),
+  delete: (id, token) => req("DELETE", `/points/${id}`, null, false, token)
 };
 
 export const MissionsAPI = {
-  list: mapId => req("GET", `/missions${mapId ? `?map_id=${mapId}` : ""}`),
-  create: m => req("POST", "/missions", m),
-  delete: id => req("DELETE", `/missions/${id}`)
+  list: (mapId, token) => req("GET", `/missions${mapId ? `?map_id=${mapId}` : ""}`, null, false, token),
+  create: (m, token) => req("POST", "/missions", m, false, token),
+  delete: (id, token) => req("DELETE", `/missions/${id}`, null, false, token)
 };

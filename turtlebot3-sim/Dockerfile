@@ -17,6 +17,12 @@ RUN apt-get update && \
 RUN apt-get update && \
     apt-get install -y ros-humble-slam-toolbox
 
+# Copiar y compilar paquete orchestrator
+COPY orchestrator /ros2_ws/src/orchestrator
+RUN . /opt/ros/humble/setup.sh && \
+    cd /ros2_ws && colcon build --packages-select orchestrator && \
+    rm -rf build log
+
 
 ENV TURTLEBOT3_MODEL=burger
 CMD ["/bin/bash"]
