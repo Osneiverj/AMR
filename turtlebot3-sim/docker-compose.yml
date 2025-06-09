@@ -21,7 +21,7 @@ services:
     ports:                # ← añade esto
       - "9090:9090"       # host:container
     volumes:
-      - ./maps:/root/maps
+      - ../maps:/root/maps
       - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
       - /run/desktop/mnt/host/wslg:/mnt/wslg
     working_dir: /root/maps
@@ -38,7 +38,6 @@ services:
         # SLAM async en /root/maps
         ros2 launch slam_toolbox online_async_launch.py \
           --ros-args -p use_sim_time:=true &
-       
       "
 
   rviz:
@@ -55,14 +54,6 @@ services:
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
                rviz2 -d /opt/ros/humble/share/turtlebot3_description/rviz/model.rviz"
-  mongodb:
-    image: mongo:7
-    networks: [ros_net]
-    volumes:
-      - mongo_data:/data/db
-      - ./maps:/maps
-    environment:
-      MONGO_INITDB_DATABASE: agv
 networks:
   ros_net:
     name: ros_net
