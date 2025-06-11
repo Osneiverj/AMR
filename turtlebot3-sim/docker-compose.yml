@@ -1,41 +1,36 @@
 version: "3.9"
 
 x-wslg-env: &wslg-env
-  # ── GUI vía WSLg ──────────────────────────────────────────────────────────────
+  # Entorno para la interfaz gráfica de usuario a través de WSLg
   DISPLAY: ":0"
   WAYLAND_DISPLAY: "wayland-0"
   XDG_RUNTIME_DIR: "/mnt/wslg/runtime-dir"
   PULSE_SERVER: "/mnt/wslg/PulseServer"
   QT_X11_NO_MITSHM: 1
-  # ── ROS / Gazebo ──────────────────────────────────────────────────────────────
+  # Variables de entorno para ROS y Gazebo
   ROS_DOMAIN_ID: 30
   TURTLEBOT3_MODEL: burger
   GAZEBO_MODEL_PATH: "/opt/ros/humble/share/turtlebot3_gazebo/models:/usr/share/gazebo-11/models"
 
 services:
   tb3_sim:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: tb3_sim
     environment: *wslg-env
     networks: [ros_net]
-    ports:                # ← añade esto
-      - "9090:9090"       # host:container
+    ports:
+      - "9090:9090" # Puerto para rosbridge
     volumes:
       - ../maps:/root/maps
       - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
       - /run/desktop/mnt/host/wslg:/mnt/wslg
     working_dir: /root/maps
-    command: >
-      bash -c "
-        source /opt/ros/humble/setup.bash &&
-        source /ros2_ws/install/setup.bash &&
-        ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py &
-        ros2 launch rosbridge_server rosbridge_websocket_launch.xml &
-        ros2 run orchestrator orchestrator
-      "
+    # La sección 'command' se elimina porque ahora la controla el entrypoint.sh
 
   rviz:
-    build: .
+    image: osrf/ros:humble-desktop # Usamos una imagen pre-construida para Rviz
     container_name: rviz_tb3
     depends_on:
       - tb3_sim
@@ -44,13 +39,11 @@ services:
     volumes:
       - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
       - /run/desktop/mnt/host/wslg:/mnt/wslg
-
     command: >
       bash -c "source /opt/ros/humble/setup.bash &&
-               rviz2 -d /opt/ros/humble/share/turtlebot3_description/rviz/model.rviz"
+               rviz2 -d /opt/ros/humble/share/turtlebot3_gazebo/rviz/turtlebot3_gazebo.rviz"
+
 networks:
   ros_net:
     name: ros_net
     external: true
-volumes:
-  mongo_data:
