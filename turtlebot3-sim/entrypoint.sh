@@ -23,4 +23,13 @@ echo ""
 
 # --- Paso C: Intentar la ejecución ---
 echo "--- [DEBUG] Intentando ejecutar el orquestador..."
-exec ros2 run orchestrator orchestrator
+# --- Ver qué hay en bin y cómo quedó el entorno ---
+echo "--- [DEBUG] Contenido de /ros2_ws/install/bin ---"
+
+ls -l /ros2_ws/install/bin
+
+echo "--- [DEBUG] AMENT_PREFIX_PATH: $AMENT_PREFIX_PATH"
+
+echo "--- [DEBUG] PATH: $PATH"
+
+exec /ros2_ws/install/bin/orchestrator "$@"

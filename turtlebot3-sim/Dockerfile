@@ -17,9 +17,13 @@ RUN apt-get update && \
 # Crea, copia y compila el workspace de ROS 2
 WORKDIR /ros2_ws
 COPY orchestrator ./src/orchestrator
-RUN . /opt/ros/humble/setup.sh && \
-    colcon build --packages-select orchestrator && \
-    rm -rf log src
+ # Usa bash para cargar correctamente el entorno de ROS 2 y construir
+# build en “merge-install” para que quede todo en /ros2_ws/install/{bin,share,…}
+RUN /bin/bash -c "\
+    source /opt/ros/humble/setup.bash && \
+    colcon build --merge-install --packages-select orchestrator \
+  " && \
+  rm -rf log src
 
 # --- CONFIGURACIÓN DEL ENTRYPOINT ---
 # Copia el script de entrada a la raíz de la imagen
