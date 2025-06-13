@@ -1,13 +1,11 @@
 # api/app/domain/maps/service.py
 import logging
 from pathlib import Path
-from datetime import datetime
 from .model import Map
 from app.core.config import settings
-import os
 import roslibpy
-import threading
 import asyncio
+from app.core.ros import ros_manager
 
 # Obtén un logger para este módulo específico
 logger = logging.getLogger(__name__) 
@@ -65,45 +63,24 @@ async def activate_map(map_name: str) -> dict:
         logger.warning(f"Intento de activar un mapa inexistente: {map_name}")
         raise FileNotFoundError(f"El mapa '{map_name}' no existe en el servidor.")
 
-    # Extraer host y puerto desde la URL de rosbridge
-    host = settings.rosbridge_url.split('//')[1].split(':')[0]
-    port = int(settings.rosbridge_url.split(':')[-1])
-    ros_client = roslibpy.Ros(host=host, port=port)
-
     try:
-        # Lanzar ros_client.run en segundo plano
-        thread = threading.Thread(target=ros_client.run, daemon=True)
-        thread.start()
-
-        # Esperar hasta que rosbridge acepte la conexión (timeout 5 s)
-        timeout = 5.0
-        waited = 0.0
-        interval = 0.1
-        while not ros_client.is_connected and waited < timeout:
-            await asyncio.sleep(interval)
-            waited += interval
-
-        if not ros_client.is_connected:
-            raise ConnectionError("No se pudo conectar con ROS.")
-
-        logger.info(f"Conectado a ROSbridge en {settings.rosbridge_url}")
-
-        # Llamar al servicio UI de Orchestrator
+        ros_client = ros_manager.get_client()
         service = roslibpy.Service(ros_client, '/ui/load_map', 'nav2_msgs/LoadMap')
         request = roslibpy.ServiceRequest({'map_url': f"/root/maps/{map_name}.yaml"})
 
         loop = asyncio.get_running_loop()
-        response = await loop.run_in_executor(None, lambda: service.call(request))
+        response = await loop.run_in_executor(None, lambda: service.call(request, timeout=10))
+
+        if response is None:
+            raise ConnectionError("La llamada al servicio /ui/load_map no obtuvo respuesta (timeout).")
+
         logger.info(f"Respuesta del Orchestrator: {response}")
         return response
 
-    except asyncio.TimeoutError:
-        logger.error(f"Timeout al conectar con ROSbridge en {settings.rosbridge_url}")
-        raise ConnectionError("No se pudo conectar con ROS.")
+    except ConnectionError as e:
+        logger.error(f"Error de conexión con ROS: {e}", exc_info=True)
+        raise
     except Exception as e:
         logger.error(f"Error al activar el mapa '{map_name}': {e}", exc_info=True)
         raise
-    finally:
-        if ros_client.is_connected:
-            ros_client.terminate()
-            logger.info("Conexión con ROSbridge terminada.")
+
