@@ -1,7 +1,11 @@
 import rclpy
 from rclpy.lifecycle import LifecycleNode
+from rclpy.lifecycle import TransitionCallbackReturn
+from lifecycle_msgs.srv import GetState, ChangeState
+from lifecycle_msgs.msg import Transition
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
+import time
 
 class Orchestrator(LifecycleNode):
     def __init__(self):
@@ -20,6 +24,10 @@ class Orchestrator(LifecycleNode):
 
         # Client for LoadMap (nav2_msgs/LoadMap)
         self.map_load_client = self.create_client(LoadMap, '/map_server/load_map')
+
+        # Direct lifecycle clients for map_server
+        self.map_server_get_state_client = self.create_client(GetState, '/map_server/get_state')
+        self.map_server_change_state_client = self.create_client(ChangeState, '/map_server/change_state')
 
         # Lifecycle manager clients (nav2_msgs/ManageLifecycleNodes)
         self.map_lifecycle_client  = self.create_client(
@@ -57,6 +65,26 @@ class Orchestrator(LifecycleNode):
         self.get_logger().error(f'Lifecycle {command} on {service_name} failed')
         return False
 
+    def change_map_server_state(self, transition_id: int, timeout_sec: float = 5.0) -> bool:
+        """Solicita un cambio de estado y espera a que se complete."""
+        if not self.map_server_change_state_client.wait_for_service(timeout_sec=timeout_sec):
+            self.get_logger().error('Servicio /map_server/change_state no disponible.')
+            return False
+
+        req = ChangeState.Request()
+        req.transition.id = transition_id
+        fut = self.map_server_change_state_client.call_async(req)
+        rclpy.spin_until_future_complete(self, fut, timeout_sec=timeout_sec)
+
+        res = fut.result()
+        if not res or not res.success:
+            self.get_logger().error(f'Fallo al solicitar la transición de estado: {transition_id}')
+            return False
+
+        self.get_logger().info(f'Transición {transition_id} solicitada con éxito. Esperando a que se complete...')
+        time.sleep(2)
+        return True
+
     def start_slam(self, request, response):
         # Before starting SLAM, shut down the map server if active
         self.get_logger().info('Shutting down Map Server for SLAM')
@@ -81,26 +109,32 @@ class Orchestrator(LifecycleNode):
         self.get_logger().info('Stopping SLAM Toolbox before loading map')
         self.call_empty(self.slam_stop_client, '/slam_toolbox/stop')
 
-        # Start up the Map Server lifecycle
-        self.get_logger().info('Starting Map Server')
-        if not self.call_manage_lifecycle(
-            self.map_lifecycle_client,
-            '/lifecycle_manager_map_server/manage_nodes',
-            ManageLifecycleNodes.Request.STARTUP
-        ):
+        self.get_logger().info('Configurando Map Server...')
+        if not self.change_map_server_state(Transition.TRANSITION_CONFIGURE):
+            response.result = LoadMap.Response.RESULT_FAILURE
             return response
 
-        # Call the LoadMap service
-        self.get_logger().info('Calling /map_server/load_map')
-        if not self.map_load_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Map server service not available')
+        self.get_logger().info('Activando Map Server...')
+        if not self.change_map_server_state(Transition.TRANSITION_ACTIVATE):
+            response.result = LoadMap.Response.RESULT_FAILURE
             return response
+
+        self.get_logger().info(f"Llamando a /map_server/load_map con URL: {request.map_url}")
+        if not self.map_load_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('Servicio /map_server/load_map no disponible tras la activación.')
+            response.result = LoadMap.Response.RESULT_FAILURE
+            return response
+
         fut = self.map_load_client.call_async(request)
         rclpy.spin_until_future_complete(self, fut)
         result = fut.result()
+
         if result is None:
-            self.get_logger().error('LoadMap call failed')
+            self.get_logger().error('La llamada a LoadMap falló (timeout o error interno).')
+            response.result = LoadMap.Response.RESULT_FAILURE
             return response
+
+        self.get_logger().info(f'Respuesta de LoadMap: {result}')
         return result
 
     def start_nav2(self, request, response):

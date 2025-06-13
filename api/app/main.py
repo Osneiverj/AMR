@@ -18,6 +18,8 @@ from app.domain.points.router import router as points_router
 from app.domain.users.router import router as auth_router
 
 from app.domain.users.service import ensure_default_admin
+from app.core.ros import ros_manager
+import threading
 
 
 # Configura el logging ANTES de que cualquier otra cosa suceda,
@@ -81,6 +83,8 @@ async def startup_event():
         "Iniciando aplicación FastAPI...",
         extra={"props": {"app_name": app.title, "app_version": app.version}}
     )
+    ros_thread = threading.Thread(target=ros_manager.connect, daemon=True)
+    ros_thread.start()
     await init_db()
     await ensure_default_admin(settings.default_admin_username, settings.default_admin_password)
     logger.info("Base de datos inicializada.")
@@ -89,7 +93,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     logger.info("Aplicación FastAPI apagándose...")
-    # Lógica de limpieza si es necesaria
+    ros_manager.disconnect()
     logger.info("Aplicación FastAPI apagada correctamente.")
 
 # Endpoint de Health Check
@@ -101,3 +105,4 @@ async def health_check():
         extra={"props": {"component": "API", "status_requested": "healthy"}}
     )
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
+
