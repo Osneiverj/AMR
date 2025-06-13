@@ -111,18 +111,18 @@ class Orchestrator(LifecycleNode):
 
         self.get_logger().info('Configurando Map Server...')
         if not self.change_map_server_state(Transition.TRANSITION_CONFIGURE):
-            response.result = LoadMap.Response.RESULT_FAILURE
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
             return response
 
         self.get_logger().info('Activando Map Server...')
         if not self.change_map_server_state(Transition.TRANSITION_ACTIVATE):
-            response.result = LoadMap.Response.RESULT_FAILURE
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
             return response
 
         self.get_logger().info(f"Llamando a /map_server/load_map con URL: {request.map_url}")
         if not self.map_load_client.wait_for_service(timeout_sec=5.0):
             self.get_logger().error('Servicio /map_server/load_map no disponible tras la activación.')
-            response.result = LoadMap.Response.RESULT_FAILURE
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
             return response
 
         fut = self.map_load_client.call_async(request)
@@ -131,7 +131,7 @@ class Orchestrator(LifecycleNode):
 
         if result is None:
             self.get_logger().error('La llamada a LoadMap falló (timeout o error interno).')
-            response.result = LoadMap.Response.RESULT_FAILURE
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
             return response
 
         self.get_logger().info(f'Respuesta de LoadMap: {result}')
