@@ -9,7 +9,9 @@ RUN apt-get update && \
     ros-humble-gazebo-ros-pkgs \
     ros-humble-gazebo-ros2-control \
     ros-humble-nav2-bringup \
-    ros-humble-rosbridge-suite \
+    ros-humble-nav2-map-server \
+    ros-humble-nav2-lifecycle-manager \
+    ros-humble-rosbridge-server \
     ros-humble-slam-toolbox && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -37,6 +39,8 @@ RUN chmod +x /entrypoint.sh
 
 # Establece el script como el punto de entrada del contenedor
 ENTRYPOINT ["/entrypoint.sh"]
+
+ENV TURTLEBOT3_MODEL=burger
 
 # El CMD ahora está vacío, ya que el entrypoint se encarga de todo
 CMD []

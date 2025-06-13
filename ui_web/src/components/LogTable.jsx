@@ -5,9 +5,9 @@ export default function LogTable() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    const sub = ros.subscribe('/rosout', 'rosgraph_msgs/Log', msg =>
+    const sub = ros.subscribe('/rosout', 'rcl_interfaces/Log', msg =>
       setLogs(l => [
-        { level: msg.level, text: msg.msg, time: new Date(msg.header.stamp.secs * 1000) },
+        { level: msg.level, text: msg.msg, time: new Date(msg.stamp.sec * 1000) },
         ...l.slice(0, 49)
       ])
     );

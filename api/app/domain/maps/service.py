@@ -6,6 +6,7 @@ from .model import Map
 from app.core.config import settings
 import os
 import roslibpy
+import threading
 import asyncio
 
 # Obtén un logger para este módulo específico
@@ -58,26 +59,42 @@ def list_available_maps() -> list[str]:
 
 
 async def activate_map(map_name: str) -> dict:
-    """Carga un mapa en ROS a través de rosbridge."""
+    """Carga un mapa en ROS a través del servicio expuesto por el Orchestrator ('/ui/load_map')."""
     map_yaml_path = MAP_DIR / f"{map_name}.yaml"
     if not map_yaml_path.exists():
         logger.warning(f"Intento de activar un mapa inexistente: {map_name}")
         raise FileNotFoundError(f"El mapa '{map_name}' no existe en el servidor.")
 
+    # Extraer host y puerto desde la URL de rosbridge
     host = settings.rosbridge_url.split('//')[1].split(':')[0]
     port = int(settings.rosbridge_url.split(':')[-1])
     ros_client = roslibpy.Ros(host=host, port=port)
 
     try:
-        await asyncio.wait_for(asyncio.to_thread(ros_client.run), timeout=5.0)
+        # Lanzar ros_client.run en segundo plano
+        thread = threading.Thread(target=ros_client.run, daemon=True)
+        thread.start()
+
+        # Esperar hasta que rosbridge acepte la conexión (timeout 5 s)
+        timeout = 5.0
+        waited = 0.0
+        interval = 0.1
+        while not ros_client.is_connected and waited < timeout:
+            await asyncio.sleep(interval)
+            waited += interval
+
+        if not ros_client.is_connected:
+            raise ConnectionError("No se pudo conectar con ROS.")
+
         logger.info(f"Conectado a ROSbridge en {settings.rosbridge_url}")
-        
-        service = roslibpy.Service(ros_client, '/map_server/load_map', 'nav2_msgs/LoadMap')
+
+        # Llamar al servicio UI de Orchestrator
+        service = roslibpy.Service(ros_client, '/ui/load_map', 'nav2_msgs/LoadMap')
         request = roslibpy.ServiceRequest({'map_url': f"/root/maps/{map_name}.yaml"})
 
         loop = asyncio.get_running_loop()
         response = await loop.run_in_executor(None, lambda: service.call(request))
-        logger.info(f"Respuesta del servicio: {response}")
+        logger.info(f"Respuesta del Orchestrator: {response}")
         return response
 
     except asyncio.TimeoutError:
