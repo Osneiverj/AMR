@@ -13,10 +13,10 @@ echo "--- [DEBUG] Iniciando Gazebo TurtleBot3 world ---"
 ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py &  # :contentReference[oaicite:0]{index=0}
 sleep 5  # dejar unos segundos para que Gazebo lance el mundo
 
-# 3) Iniciar Map Server (sin activarlo)
+# 3) Iniciar Map Server sin cargar un mapa inicial
 ros2 run nav2_map_server map_server \
   --ros-args \
-    -p yaml_filename:="/root/maps/default.yaml" \
+    -p yaml_filename:="" \
     -p use_sim_time:=True &
 
 # 4) Iniciar lifecycle manager del Map Server, sin autostart
