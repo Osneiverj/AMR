@@ -81,19 +81,12 @@ class Orchestrator(LifecycleNode):
         self.get_logger().info('Stopping SLAM Toolbox before loading map')
         self.call_empty(self.slam_stop_client, '/slam_toolbox/stop')
 
-        # Configure and activate the Map Server
-        self.get_logger().info('Configuring Map Server')
+        # Start up the Map Server lifecycle
+        self.get_logger().info('Starting Map Server')
         if not self.call_manage_lifecycle(
             self.map_lifecycle_client,
             '/lifecycle_manager_map_server/manage_nodes',
-            ManageLifecycleNodes.Request.CONFIGURE
-        ):
-            return response
-        self.get_logger().info('Activating Map Server')
-        if not self.call_manage_lifecycle(
-            self.map_lifecycle_client,
-            '/lifecycle_manager_map_server/manage_nodes',
-            ManageLifecycleNodes.Request.ACTIVATE
+            ManageLifecycleNodes.Request.STARTUP
         ):
             return response
 
