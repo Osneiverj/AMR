@@ -16,7 +16,6 @@ sleep 5  # dejar unos segundos para que Gazebo lance el mundo
 # 3) Iniciar Map Server sin cargar un mapa inicial
 ros2 run nav2_map_server map_server \
   --ros-args \
-    -p yaml_filename:="" \
     -p use_sim_time:=True &
 
 # 4) Iniciar lifecycle manager del Map Server, sin autostart
@@ -35,7 +34,7 @@ echo "--- [DEBUG] Iniciando rosbridge_websocket en puerto 9090 ---"
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090 &
 
 # 6) Esperar a que tome el puerto
-sleep 2
+sleep 5
 
 # 7) Ejecutar Orchestrator
 echo "--- [DEBUG] Ejecutando Orchestrator ---"
