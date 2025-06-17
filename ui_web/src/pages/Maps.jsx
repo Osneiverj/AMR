@@ -29,10 +29,10 @@ export default function Maps() {
       return;
     }
     setIsLoading(true);
-    setMessage(`Activando el mapa '${selectedLocalMap}'...`);
+    setMessage(`Activando el mapa '${selectedLocalMap}' y modo navegación...`);
     try {
       const res = await MapsAPI.activate(selectedLocalMap, token);
-      setMessage(res.message || "Mapa activado con éxito.");
+      setMessage(res.message || "Mapa activado y navegación iniciada.");
       // opcional: establece en contexto el mapa seleccionado
       setSelectedMap(null); // limpiar selección previa
     } catch (err) {

@@ -57,7 +57,7 @@ def list_available_maps() -> list[str]:
 
 
 async def activate_map(map_name: str) -> dict:
-    """Carga un mapa en ROS a través del servicio expuesto por el Orchestrator ('/ui/load_map')."""
+    """Activa el modo navegación cargando el mapa a través del Orchestrator."""
     map_yaml_path = MAP_DIR / f"{map_name}.yaml"
     if not map_yaml_path.exists():
         logger.warning(f"Intento de activar un mapa inexistente: {map_name}")
@@ -65,14 +65,20 @@ async def activate_map(map_name: str) -> dict:
 
     try:
         ros_client = ros_manager.get_client()
-        service = roslibpy.Service(ros_client, '/ui/load_map', 'nav2_msgs/LoadMap')
+        service = roslibpy.Service(
+            ros_client,
+            '/ui/start_navigation_mode',
+            'nav2_msgs/LoadMap'
+        )
         request = roslibpy.ServiceRequest({'map_url': f"/root/maps/{map_name}.yaml"})
 
         loop = asyncio.get_running_loop()
         response = await loop.run_in_executor(None, lambda: service.call(request, timeout=10))
 
         if response is None:
-            raise ConnectionError("La llamada al servicio /ui/load_map no obtuvo respuesta (timeout).")
+            raise ConnectionError(
+                "La llamada al servicio /ui/start_navigation_mode no obtuvo respuesta (timeout)."
+            )
 
         logger.info(f"Respuesta del Orchestrator: {response}")
         return response

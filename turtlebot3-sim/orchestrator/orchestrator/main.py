@@ -6,6 +6,13 @@ from lifecycle_msgs.msg import Transition
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
 import time
+from enum import Enum
+
+
+class Mode(Enum):
+    IDLE = 0
+    MAPPING = 1
+    NAVIGATION = 2
 
 class Orchestrator(LifecycleNode):
     def __init__(self):
@@ -17,6 +24,9 @@ class Orchestrator(LifecycleNode):
         self.create_service(LoadMap, 'ui/load_map',   self.load_map)
         self.create_service(Empty,   'ui/start_nav2', self.start_nav2)
         self.create_service(Empty,   'ui/stop_nav2',  self.stop_nav2)
+        self.create_service(Empty,   'ui/start_mapping_mode', self.start_mapping_mode)
+        self.create_service(LoadMap, 'ui/start_navigation_mode', self.start_navigation_mode)
+        self.create_service(Empty,   'ui/stop_mode', self.stop_current_mode)
 
         # Clients for SLAM Toolbox (std_srvs/Empty)
         self.slam_start_client = self.create_client(Empty, '/slam_toolbox/start')
@@ -38,6 +48,9 @@ class Orchestrator(LifecycleNode):
             ManageLifecycleNodes,
             '/lifecycle_manager_navigation/manage_nodes'
         )
+
+        # Track current high level mode
+        self.mode = Mode.IDLE
 
     def call_empty(self, client, service_name: str) -> bool:
         if not client.wait_for_service(timeout_sec=5.0):
@@ -155,6 +168,86 @@ class Orchestrator(LifecycleNode):
             '/lifecycle_manager_navigation/manage_nodes',
             ManageLifecycleNodes.Request.SHUTDOWN
         )
+        return response
+
+    def stop_current_mode(self, request=None, response=None):
+        """Stop whichever high level mode is active."""
+        if self.mode == Mode.MAPPING:
+            self.get_logger().info('Stopping mapping mode')
+            self.call_empty(self.slam_stop_client, '/slam_toolbox/stop')
+            self.mode = Mode.IDLE
+        elif self.mode == Mode.NAVIGATION:
+            self.get_logger().info('Stopping navigation mode')
+            self.stop_nav2(None, Empty.Response())
+            self.call_manage_lifecycle(
+                self.map_lifecycle_client,
+                '/lifecycle_manager_map_server/manage_nodes',
+                ManageLifecycleNodes.Request.SHUTDOWN,
+            )
+            self.mode = Mode.IDLE
+        return Empty.Response() if response is None else response
+
+    # ---- High level mode management ----
+    def start_mapping_mode(self, request, response):
+        """Switch to mapping mode: stop Nav2 and start SLAM."""
+        if self.mode == Mode.MAPPING:
+            self.get_logger().info('Already in mapping mode')
+            return response
+
+        self.get_logger().info('Switching to mapping mode')
+
+        # Ensure any previous mode is stopped
+        self.stop_current_mode()
+
+        # Shutdown map server to avoid conflicts
+        self.call_manage_lifecycle(
+            self.map_lifecycle_client,
+            '/lifecycle_manager_map_server/manage_nodes',
+            ManageLifecycleNodes.Request.SHUTDOWN,
+        )
+
+        # Start SLAM
+        if self.call_empty(self.slam_start_client, '/slam_toolbox/start'):
+            self.mode = Mode.MAPPING
+        return response
+
+    def start_navigation_mode(self, request, response):
+        """Switch to navigation mode: stop SLAM, load map and start Nav2."""
+        if self.mode == Mode.NAVIGATION:
+            self.get_logger().info('Already in navigation mode')
+            response.result = LoadMap.Response.RESULT_SUCCESS
+            return response
+
+        self.get_logger().info('Switching to navigation mode')
+
+        # Ensure any previous mode is stopped
+        self.stop_current_mode()
+
+        # Configure and activate Map Server
+        if not self.change_map_server_state(Transition.TRANSITION_CONFIGURE):
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
+            return response
+        if not self.change_map_server_state(Transition.TRANSITION_ACTIVATE):
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
+            return response
+
+        # Load the requested map
+        if not self.map_load_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('Servicio /map_server/load_map no disponible tras la activación.')
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
+            return response
+        fut = self.map_load_client.call_async(request)
+        rclpy.spin_until_future_complete(self, fut)
+        result = fut.result()
+        if result is None or result.result != LoadMap.Response.RESULT_SUCCESS:
+            self.get_logger().error('La llamada a LoadMap falló o devolvió error')
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
+            return response
+
+        # Start Nav2 stack
+        self.start_nav2(None, Empty.Response())
+        self.mode = Mode.NAVIGATION
+        response.result = LoadMap.Response.RESULT_SUCCESS
         return response
 
 

@@ -9,7 +9,8 @@ from typing import AsyncGenerator, Generator # Para tipado de fixtures
 # o ajusta los imports si ejecutas pytest desde un directorio diferente.
 from app.main import app 
 from app.core.config import settings 
-from app.core.db import init_db 
+from app.core.db import init_db
+import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 
 # Define la URI para la base de datos de prueba.
@@ -47,6 +48,14 @@ async def initialize_test_database() -> AsyncGenerator[None, None]:
     
     # Restaura la URI original en los settings
     settings.mongo_uri = original_mongo_uri
+
+
+@pytest_asyncio.fixture(scope="session")
+def event_loop() -> asyncio.AbstractEventLoop:
+    """Create an event loop for the entire test session."""
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest_asyncio.fixture(scope="function") 

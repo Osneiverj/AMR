@@ -22,7 +22,7 @@ async def get_available_maps(current_user = Depends(get_current_active_user)):
 
 @router.post("/{map_name}/activate", status_code=200)
 async def activate_map_endpoint(map_name: str, current_user = Depends(require_admin)):
-    """Activa un mapa existente en ROS."""
+    """Carga el mapa solicitado y arranca el modo navegación en ROS."""
     try:
         result = await activate_map(map_name)
         if result.get('result') == 0:
