@@ -3,7 +3,6 @@ from rclpy.lifecycle import LifecycleNode
 
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
-import os
 
 
 class Orchestrator(LifecycleNode):
@@ -72,11 +71,11 @@ class Orchestrator(LifecycleNode):
             "/lifecycle_manager_navigation/manage_nodes",
             ManageLifecycleNodes.Request.SHUTDOWN,
         )
-        self.get_logger().info("Resetting Map Server")
+        self.get_logger().info("Shutting down Map Server")
         self._call_manage(
             self.map_lifecycle_client,
             "/lifecycle_manager_map_server/manage_nodes",
-            ManageLifecycleNodes.Request.RESET,
+            ManageLifecycleNodes.Request.SHUTDOWN,
         )
         self.get_logger().info("Starting SLAM Toolbox")
         self._call_empty(self.slam_start_client, "/slam_toolbox/start")
@@ -91,19 +90,6 @@ class Orchestrator(LifecycleNode):
         # Switch from mapping to navigation: stop SLAM, start map server, load map, start Nav2
         self.get_logger().info("Stopping SLAM Toolbox before loading map")
         self._call_empty(self.slam_stop_client, "/slam_toolbox/stop")
-
-        # Reset map server to ensure fresh configuration
-        self.get_logger().info("Resetting Map Server")
-        self._call_manage(
-            self.map_lifecycle_client,
-            "/lifecycle_manager_map_server/manage_nodes",
-            ManageLifecycleNodes.Request.RESET,
-        )
-
-        # Set map YAML file for next startup
-        os.system(
-            f"ros2 param set /map_server yaml_filename {request.map_url}"
-        )
 
         self.get_logger().info("Starting Map Server")
         self._call_manage(
