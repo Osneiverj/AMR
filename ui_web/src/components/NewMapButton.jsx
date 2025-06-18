@@ -4,21 +4,18 @@ import ros from '../services/rosService';
 export default function NewMapButton() {
   const [busy, setBusy] = useState(false);
 
-    // Iniciar borrando el mapa y activando modo interactivo
-    const startMapping = async () => {
+  // Solicita al Orchestrator activar el modo mapeo
+  const startMapping = async () => {
     setBusy(true);
     try {
-        // 1. Clear (descarta mapas previos)
-        await ros.callService('/slam_toolbox/clear_changes', 'slam_toolbox/srv/Clear');
-        // 2. (Opcional) toggle_interactive para reiniciar pose graph
-        await ros.callService('/slam_toolbox/toggle_interactive_mode', 'slam_toolbox/srv/ToggleInteractive');
-        alert('SLAM listo: conduce el robot para mapear.');
+      await ros.callService('/ui/start_slam', 'std_srvs/srv/Empty');
+      alert('SLAM listo: conduce el robot para mapear.');
     } catch (e) {
-        alert('Error al controlar SLAM:\n' + e);
+      alert('Error al iniciar SLAM:\n' + e);
     } finally {
-        setBusy(false);
+      setBusy(false);
     }
-    };
+  };
 
 
   return (
