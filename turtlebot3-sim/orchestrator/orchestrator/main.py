@@ -35,18 +35,18 @@ class Orchestrator(LifecycleNode):
     # ---------------------- Helper methods ----------------------
     def _call_empty(self, client, name: str) -> bool:
         if not client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error(f'Service {name} unavailable')
+            self.get_logger().warn(f'Service {name} unavailable')
             return False
         fut = client.call_async(Empty.Request())
         rclpy.spin_until_future_complete(self, fut)
         if fut.result() is None:
-            self.get_logger().error(f'Call to {name} failed')
+            self.get_logger().warn(f'Call to {name} failed')
             return False
         return True
 
     def _call_manage(self, client, name: str, command: int) -> bool:
         if not client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error(f'Lifecycle service {name} unavailable')
+            self.get_logger().warn(f'Lifecycle service {name} unavailable')
             return False
         req = ManageLifecycleNodes.Request(command=command)
         fut = client.call_async(req)
@@ -54,23 +54,20 @@ class Orchestrator(LifecycleNode):
         res = fut.result()
         if res and res.success:
             return True
-        self.get_logger().error(f'Lifecycle command {command} on {name} failed')
+        self.get_logger().warn(f'Lifecycle command {command} on {name} failed')
         return False
 
     # ---------------------- SLAM / Nav2 control ----------------------
     def start_slam(self, request, response):
-        # Ensure nav2 and map server are down before mapping
-        self.get_logger().info('Stopping Nav2 stack for mapping')
+        self.get_logger().info('Switching to mapping mode')
         self._call_manage(
             self.nav2_lifecycle_client,
             '/lifecycle_manager_navigation/manage_nodes',
             ManageLifecycleNodes.Request.SHUTDOWN)
-        self.get_logger().info('Shutting down Map Server')
         self._call_manage(
             self.map_lifecycle_client,
             '/lifecycle_manager_map_server/manage_nodes',
             ManageLifecycleNodes.Request.SHUTDOWN)
-        self.get_logger().info('Starting SLAM Toolbox')
         self._call_empty(self.slam_start_client, '/slam_toolbox/start')
         return response
 
@@ -80,40 +77,32 @@ class Orchestrator(LifecycleNode):
         return response
 
     def load_map(self, request, response):
-        # Switch from mapping to navigation: stop SLAM, start map server, load map, start Nav2
-        self.get_logger().info('Stopping SLAM Toolbox before loading map')
+        self.get_logger().info('Loading map and enabling navigation')
         self._call_empty(self.slam_stop_client, '/slam_toolbox/stop')
-
-        # Ensure map server is not running
-        self.get_logger().info('Stopping Map Server')
         self._call_manage(
             self.map_lifecycle_client,
             '/lifecycle_manager_map_server/manage_nodes',
             ManageLifecycleNodes.Request.SHUTDOWN)
 
-        # Set map YAML file for next startup
         os.system(f'ros2 param set /map_server yaml_filename {request.map_url}')
-
-        self.get_logger().info('Starting Map Server')
         self._call_manage(
             self.map_lifecycle_client,
             '/lifecycle_manager_map_server/manage_nodes',
             ManageLifecycleNodes.Request.STARTUP)
 
-        self.get_logger().info(f'Loading map via service: {request.map_url}')
         if not self.map_load_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Service /map_server/load_map unavailable')
+            self.get_logger().warn('Service /map_server/load_map unavailable')
             response.result = LoadMap.Response.RESULT_FAILURE
             return response
+
         fut = self.map_load_client.call_async(request)
         rclpy.spin_until_future_complete(self, fut)
         result = fut.result()
         if result is None or result.result != LoadMap.Response.RESULT_SUCCESS:
-            self.get_logger().error('LoadMap call failed')
+            self.get_logger().warn('LoadMap call failed')
             response.result = LoadMap.Response.RESULT_FAILURE
             return response
 
-        self.get_logger().info('Starting Nav2 stack after map load')
         self._call_manage(
             self.nav2_lifecycle_client,
             '/lifecycle_manager_navigation/manage_nodes',
