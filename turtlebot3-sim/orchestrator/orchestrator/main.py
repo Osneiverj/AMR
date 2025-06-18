@@ -91,10 +91,6 @@ class Orchestrator(Node):
             response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
             return response
 
-<<<<<<< HEAD
-        self.get_logger().info(f'Mapa {request.map_url} cargado con éxito.')
-        response.result = LoadMap.Response.RESULT_SUCCESS
-=======
         self.get_logger().info(f"Llamando a /map_server/load_map con URL: {request.map_url}")
         if not self.map_load_client.wait_for_service(timeout_sec=5.0):
             self.get_logger().error('Servicio /map_server/load_map no disponible tras la activación.')
@@ -121,7 +117,6 @@ class Orchestrator(Node):
             '/lifecycle_manager_navigation/manage_nodes',
             ManageLifecycleNodes.Request.STARTUP
         )
->>>>>>> 65d2d478e59f4ed29e0e0d617099e99751464efa
         return response
 
 def main(args=None):
