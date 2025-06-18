@@ -57,7 +57,7 @@ def list_available_maps() -> list[str]:
 
 
 async def activate_map(map_name: str) -> dict:
-    """Carga un mapa en ROS a través del servicio expuesto por el Orchestrator ('/ui/load_map')."""
+    """Carga un mapa y arranca la navegación a través del Orchestrator."""
     map_yaml_path = MAP_DIR / f"{map_name}.yaml"
     if not map_yaml_path.exists():
         logger.warning(f"Intento de activar un mapa inexistente: {map_name}")
