@@ -57,7 +57,11 @@ def list_available_maps() -> list[str]:
 
 
 async def activate_map(map_name: str) -> dict:
-    """Carga un mapa y arranca la navegación a través del Orchestrator."""
+    """Carga un mapa y arranca la navegación a través del Orchestrator.
+
+    El servicio `/ui/load_map` reinicia el map_server con el archivo dado y
+    pone en marcha Nav2 automáticamente.
+    """
     map_yaml_path = MAP_DIR / f"{map_name}.yaml"
     if not map_yaml_path.exists():
         logger.warning(f"Intento de activar un mapa inexistente: {map_name}")
