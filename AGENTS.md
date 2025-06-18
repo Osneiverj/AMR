@@ -29,7 +29,7 @@ This file describes the “agents” that compose the AMR project, their respons
 3. **User actions** in UI:  
    - **Create map** → calls `/ui/start_slam` via rosbridge or API proxy.  
    - **Save map** → calls SLAM service → uploads files to rest_api → MongoDB.  
-   - **Activate map** → calls `/ui/load_map` & `/ui/start_nav2` → nav2 lifecycle.  
+   - **Activate map** → calls `/ui/load_map` (this also starts Nav2) → nav2 lifecycle.
    - **CRUD points/missions** → HTTP calls to rest_api → MongoDB.  
 
 ## Extensibility

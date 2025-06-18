@@ -1,10 +1,9 @@
 import rclpy
 from rclpy.lifecycle import LifecycleNode
-from lifecycle_msgs.srv import ChangeState
-from lifecycle_msgs.msg import Transition
+
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
-import time
+import os
 
 
 class Orchestrator(LifecycleNode):
@@ -22,10 +21,8 @@ class Orchestrator(LifecycleNode):
         self.slam_start_client = self.create_client(Empty, '/slam_toolbox/start')
         self.slam_stop_client  = self.create_client(Empty, '/slam_toolbox/stop')
 
-        # Cliente para map_server load_map y su lifecycle
+        # Cliente para map_server y su servicio load_map
         self.map_load_client = self.create_client(LoadMap, '/map_server/load_map')
-        self.map_server_change_state_client = self.create_client(
-            ChangeState, '/map_server/change_state')
 
         # Lifecycle managers
         self.map_lifecycle_client = self.create_client(
@@ -60,21 +57,6 @@ class Orchestrator(LifecycleNode):
         self.get_logger().error(f'Lifecycle command {command} on {name} failed')
         return False
 
-    def _change_map_state(self, transition_id: int) -> bool:
-        if not self.map_server_change_state_client.wait_for_service(timeout_sec=5.0):
-            self.get_logger().error('Service /map_server/change_state unavailable')
-            return False
-        req = ChangeState.Request()
-        req.transition.id = transition_id
-        fut = self.map_server_change_state_client.call_async(req)
-        rclpy.spin_until_future_complete(self, fut)
-        res = fut.result()
-        if res and res.success:
-            time.sleep(2)
-            return True
-        self.get_logger().error(f'Map server transition {transition_id} failed')
-        return False
-
     # ---------------------- SLAM / Nav2 control ----------------------
     def start_slam(self, request, response):
         # Ensure nav2 and map server are down before mapping
@@ -98,21 +80,27 @@ class Orchestrator(LifecycleNode):
         return response
 
     def load_map(self, request, response):
-        # Switch from mapping to navigation: stop slam, start map server, start nav2
+        # Switch from mapping to navigation: stop SLAM, start map server, load map, start Nav2
         self.get_logger().info('Stopping SLAM Toolbox before loading map')
         self._call_empty(self.slam_stop_client, '/slam_toolbox/stop')
 
-        self.get_logger().info('Configuring Map Server')
-        if not self._change_map_state(Transition.TRANSITION_CONFIGURE):
-            response.result = LoadMap.Response.RESULT_FAILURE
-            return response
+        # Ensure map server is not running
+        self.get_logger().info('Stopping Map Server')
+        self._call_manage(
+            self.map_lifecycle_client,
+            '/lifecycle_manager_map_server/manage_nodes',
+            ManageLifecycleNodes.Request.SHUTDOWN)
 
-        self.get_logger().info('Activating Map Server')
-        if not self._change_map_state(Transition.TRANSITION_ACTIVATE):
-            response.result = LoadMap.Response.RESULT_FAILURE
-            return response
+        # Set map YAML file for next startup
+        os.system(f'ros2 param set /map_server yaml_filename {request.map_url}')
 
-        self.get_logger().info(f'Calling load_map with URL: {request.map_url}')
+        self.get_logger().info('Starting Map Server')
+        self._call_manage(
+            self.map_lifecycle_client,
+            '/lifecycle_manager_map_server/manage_nodes',
+            ManageLifecycleNodes.Request.STARTUP)
+
+        self.get_logger().info(f'Loading map via service: {request.map_url}')
         if not self.map_load_client.wait_for_service(timeout_sec=5.0):
             self.get_logger().error('Service /map_server/load_map unavailable')
             response.result = LoadMap.Response.RESULT_FAILURE
