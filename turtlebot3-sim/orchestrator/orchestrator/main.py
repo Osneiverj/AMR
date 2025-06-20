@@ -1,9 +1,8 @@
 import rclpy
 from rclpy.lifecycle import LifecycleNode
 
-from std_srvs.srv import Empty
+from std_srvs.srv import Empty, Trigger
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
-import os
 
 
 class Orchestrator(LifecycleNode):
@@ -36,6 +35,13 @@ class Orchestrator(LifecycleNode):
             ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes"
         )
 
+        self.map_active_client = self.create_client(
+            Trigger, "/lifecycle_manager_map_server/is_active"
+        )
+        self.nav2_active_client = self.create_client(
+            Trigger, "/lifecycle_manager_navigation/is_active"
+        )
+
     # ---------------------- Helper methods ----------------------
     def _call_empty(self, client, name: str) -> bool:
         if not client.wait_for_service(timeout_sec=5.0):
@@ -63,21 +69,38 @@ class Orchestrator(LifecycleNode):
         )
         return False
 
+    def _is_active(self, client, name: str) -> bool:
+        if not client.wait_for_service(timeout_sec=3.0):
+            return False
+        fut = client.call_async(Trigger.Request())
+        rclpy.spin_until_future_complete(self, fut)
+        res = fut.result()
+        if res is None:
+            self.get_logger().warning(f"Failed to check {name} state")
+            return False
+        return res.success
+
     # ---------------------- SLAM / Nav2 control ----------------------
     def start_slam(self, request, response):
         # Ensure nav2 and map server are down before mapping
         self.get_logger().info("Stopping Nav2 stack for mapping")
-        self._call_manage(
-            self.nav2_lifecycle_client,
-            "/lifecycle_manager_navigation/manage_nodes",
-            ManageLifecycleNodes.Request.SHUTDOWN,
-        )
-        self.get_logger().info("Resetting Map Server")
-        self._call_manage(
-            self.map_lifecycle_client,
-            "/lifecycle_manager_map_server/manage_nodes",
-            ManageLifecycleNodes.Request.RESET,
-        )
+        if self._is_active(
+            self.nav2_active_client, "/lifecycle_manager_navigation/is_active"
+        ):
+            self._call_manage(
+                self.nav2_lifecycle_client,
+                "/lifecycle_manager_navigation/manage_nodes",
+                ManageLifecycleNodes.Request.SHUTDOWN,
+            )
+        self.get_logger().info("Shutting down Map Server")
+        if self._is_active(
+            self.map_active_client, "/lifecycle_manager_map_server/is_active"
+        ):
+            self._call_manage(
+                self.map_lifecycle_client,
+                "/lifecycle_manager_map_server/manage_nodes",
+                ManageLifecycleNodes.Request.SHUTDOWN,
+            )
         self.get_logger().info("Starting SLAM Toolbox")
         self._call_empty(self.slam_start_client, "/slam_toolbox/start")
         return response
@@ -92,25 +115,15 @@ class Orchestrator(LifecycleNode):
         self.get_logger().info("Stopping SLAM Toolbox before loading map")
         self._call_empty(self.slam_stop_client, "/slam_toolbox/stop")
 
-        # Reset map server to ensure fresh configuration
-        self.get_logger().info("Resetting Map Server")
-        self._call_manage(
-            self.map_lifecycle_client,
-            "/lifecycle_manager_map_server/manage_nodes",
-            ManageLifecycleNodes.Request.RESET,
-        )
-
-        # Set map YAML file for next startup
-        os.system(
-            f"ros2 param set /map_server yaml_filename {request.map_url}"
-        )
-
-        self.get_logger().info("Starting Map Server")
-        self._call_manage(
-            self.map_lifecycle_client,
-            "/lifecycle_manager_map_server/manage_nodes",
-            ManageLifecycleNodes.Request.STARTUP,
-        )
+        if not self._is_active(
+            self.map_active_client, "/lifecycle_manager_map_server/is_active"
+        ):
+            self.get_logger().info("Starting Map Server")
+            self._call_manage(
+                self.map_lifecycle_client,
+                "/lifecycle_manager_map_server/manage_nodes",
+                ManageLifecycleNodes.Request.STARTUP,
+            )
 
         self.get_logger().info(f"Loading map via service: {request.map_url}")
         if not self.map_load_client.wait_for_service(timeout_sec=5.0):
@@ -135,20 +148,29 @@ class Orchestrator(LifecycleNode):
 
     def start_nav2(self, request, response):
         self.get_logger().info("Starting Nav2 stack")
-        self._call_manage(
-            self.nav2_lifecycle_client,
-            "/lifecycle_manager_navigation/manage_nodes",
-            ManageLifecycleNodes.Request.STARTUP,
-        )
+
+        if not self._is_active(
+            self.nav2_active_client, "/lifecycle_manager_navigation/is_active"
+        ):
+            self._call_manage(
+                self.nav2_lifecycle_client,
+                "/lifecycle_manager_navigation/manage_nodes",
+                ManageLifecycleNodes.Request.STARTUP,
+            )
         return response
 
     def stop_nav2(self, request, response):
         self.get_logger().info("Shutting down Nav2 stack")
-        self._call_manage(
-            self.nav2_lifecycle_client,
-            "/lifecycle_manager_navigation/manage_nodes",
-            ManageLifecycleNodes.Request.SHUTDOWN,
-        )
+
+        if self._is_active(
+            self.nav2_active_client, "/lifecycle_manager_navigation/is_active"
+        ):
+            self._call_manage(
+                self.nav2_lifecycle_client,
+                "/lifecycle_manager_navigation/manage_nodes",
+                ManageLifecycleNodes.Request.SHUTDOWN,
+            )
+
         return response
 
 
