@@ -2,10 +2,9 @@ import rclpy
 from rclpy.lifecycle import LifecycleNode
 
 from std_srvs.srv import Empty
-from nav2_msgs.srv import LoadMap, LoadMap_Response, ManageLifecycleNodes
+from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
 from lifecycle_msgs.srv import ChangeState, GetState
 from lifecycle_msgs.msg import Transition, State
-import os
 
 
 class Orchestrator(LifecycleNode):
@@ -175,15 +174,15 @@ class Orchestrator(LifecycleNode):
         self.get_logger().info(f"Loading map via service: {request.map_url}")
         if not self.map_load_client.wait_for_service(timeout_sec=5.0):
             self.get_logger().error("Service /map_server/load_map unavailable")
-            response.result = LoadMap_Response.RESULT_UNDEFINED_FAILURE
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
             return response
         fut = self.map_load_client.call_async(request)
         rclpy.spin_until_future_complete(self, fut)
         result = fut.result()
-        if result is None or result.result != LoadMap_Response.RESULT_SUCCESS:
+        if result is None or result.result != LoadMap.Response.RESULT_SUCCESS:
             self.get_logger().error("LoadMap call failed")
             response.result = (
-                result.result if result else LoadMap_Response.RESULT_UNDEFINED_FAILURE
+                result.result if result else LoadMap.Response.RESULT_UNDEFINED_FAILURE
             )
             return response
 
