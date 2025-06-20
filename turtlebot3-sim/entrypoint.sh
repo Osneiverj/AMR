@@ -18,7 +18,11 @@ ros2 run nav2_map_server map_server \
   --ros-args \
     -p use_sim_time:=True &
 
-# 4) Iniciar lifecycle manager del Map Server, sin autostart
+# 4) Iniciar SLAM Toolbox en modo async
+ros2 launch slam_toolbox online_async_launch.py \
+  use_sim_time:=True &
+
+# 5) Iniciar lifecycle manager del Map Server, sin autostart
 echo "--- [DEBUG] Iniciando lifecycle_manager_map_server (autostart=False) ---"
 ros2 run nav2_lifecycle_manager lifecycle_manager \
   --ros-args \
@@ -27,15 +31,25 @@ ros2 run nav2_lifecycle_manager lifecycle_manager \
     -p node_names:="['map_server']" \
     -r __node:=lifecycle_manager_map_server &
 
-sleep 2
+# 6) Iniciar lifecycle manager para slam_toolbox
+echo "--- [DEBUG] Iniciando lifecycle_manager_slam_toolbox (autostart=False) ---"
+ros2 run nav2_lifecycle_manager lifecycle_manager \
+  --ros-args \
+    -p use_sim_time:=True \
+    -p autostart:=False \
+    -p node_names:="['slam_toolbox']" \
+    -r __node:=lifecycle_manager_slam_toolbox &
 
-# 5) Arrancar rosbridge_websocket en background
+# 7) Esperar a que los nodos arranquen
+sleep 5
+
+# 8) Arrancar rosbridge_websocket en background
 echo "--- [DEBUG] Iniciando rosbridge_websocket en puerto 9090 ---"
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090 &
 
-# 6) Esperar a que tome el puerto
+# 9) Esperar a que tome el puerto
 sleep 5
 
-# 7) Ejecutar Orchestrator
+# 10) Ejecutar Orchestrator
 echo "--- [DEBUG] Ejecutando Orchestrator ---"
 exec /ros2_ws/install/bin/orchestrator "$@"
