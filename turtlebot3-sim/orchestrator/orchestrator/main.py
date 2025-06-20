@@ -148,6 +148,7 @@ class Orchestrator(LifecycleNode):
 
     def start_nav2(self, request, response):
         self.get_logger().info("Starting Nav2 stack")
+
         if not self._is_active(
             self.nav2_active_client, "/lifecycle_manager_navigation/is_active"
         ):
@@ -160,6 +161,7 @@ class Orchestrator(LifecycleNode):
 
     def stop_nav2(self, request, response):
         self.get_logger().info("Shutting down Nav2 stack")
+
         if self._is_active(
             self.nav2_active_client, "/lifecycle_manager_navigation/is_active"
         ):
@@ -168,6 +170,7 @@ class Orchestrator(LifecycleNode):
                 "/lifecycle_manager_navigation/manage_nodes",
                 ManageLifecycleNodes.Request.SHUTDOWN,
             )
+
         return response
 
 
