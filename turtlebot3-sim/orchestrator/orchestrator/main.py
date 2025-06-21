@@ -3,6 +3,7 @@ from rclpy.lifecycle import LifecycleNode
 
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
+
 from lifecycle_msgs.srv import ChangeState, GetState
 from lifecycle_msgs.msg import Transition, State
 
@@ -179,10 +180,12 @@ class Orchestrator(LifecycleNode):
         fut = self.map_load_client.call_async(request)
         rclpy.spin_until_future_complete(self, fut)
         result = fut.result()
-        if result is None or result.result != LoadMap.Response.RESULT_SUCCESS:
+        if result is None or result.result != LoadMap_Response.RESULT_SUCCESS:
             self.get_logger().error("LoadMap call failed")
             response.result = (
+
                 result.result if result else LoadMap.Response.RESULT_UNDEFINED_FAILURE
+
             )
             return response
 
