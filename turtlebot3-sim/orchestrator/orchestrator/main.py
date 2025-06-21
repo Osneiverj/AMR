@@ -2,7 +2,7 @@ import rclpy
 from rclpy.lifecycle import LifecycleNode
 
 from std_srvs.srv import Empty
-from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
+from nav2_msgs.srv import LoadMap, LoadMap_Response, ManageLifecycleNodes
 from lifecycle_msgs.srv import ChangeState, GetState
 from lifecycle_msgs.msg import Transition, State
 
@@ -149,10 +149,12 @@ class Orchestrator(LifecycleNode):
                 Transition.TRANSITION_DEACTIVATE,
             )
 
-        # Limpia map_server solo si estaba activo
-        map_state = self._get_state(self.map_state_client, "/map_server/get_state")
-        if map_state == State.PRIMARY_STATE_ACTIVE:
-            self._call_change_state(
+            response.result = LoadMap_Response.RESULT_UNDEFINED_FAILURE
+        if result is None or result.result != LoadMap_Response.RESULT_SUCCESS:
+                result.result if result else LoadMap_Response.RESULT_UNDEFINED_FAILURE
+        response.map = result.map
+        response.result = result.result
+        return response
                 self.map_lifecycle_client,
                 "/map_server/change_state",
                 Transition.TRANSITION_DEACTIVATE,
