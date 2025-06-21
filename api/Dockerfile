@@ -21,27 +21,25 @@ RUN groupadd -r appgroup --gid 1000 && \
 # 5. Copiar el archivo de dependencias PRIMERO
 COPY --chown=appuser:appgroup requirements.txt .
 
-# 6. Instalar las dependencias
-#    (Como appuser, si pip necesita escribir en algún directorio global,
-#     podría fallar. Si es así, se instala como root ANTES de USER appuser
-#     o se asegura que el directorio de instalación de pip sea escribible por appuser.
-#     Para instalaciones globales de paquetes, es común hacerlo como root
-#     o en un virtualenv propiedad del usuario no-root.)
-#
-#     Opción A: Instalar como root (más simple si no hay problemas de seguridad específicos con los paquetes)
+# 6. Instalar dependencias del sistema necesarias para ciertos paquetes de Python
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends graphviz graphviz-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# 7. Instalar las dependencias de Python
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# 7. Copiar el resto del código de la aplicación al directorio de trabajo
+# 8. Copiar el resto del código de la aplicación al directorio de trabajo
 #    Usa --chown para que los archivos sean propiedad del usuario no-root directamente
 COPY --chown=appuser:appgroup app ./app
 
-# 8. Cambiar al usuario no-root
+# 9. Cambiar al usuario no-root
 USER appuser
 
-# 9. Exponer el puerto en el que corre la aplicación DENTRO del contenedor
+# 10. Exponer el puerto en el que corre la aplicación DENTRO del contenedor
 EXPOSE 8000
 
-# 10. Comando para ejecutar la aplicación
+# 11. Comando para ejecutar la aplicación
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
 # Añadido --workers 1 como un punto de partida razonable para Uvicorn
