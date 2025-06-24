@@ -19,8 +19,10 @@ ros2 run nav2_map_server map_server \
     -p use_sim_time:=True &
 
 # 4) Iniciar SLAM Toolbox en modo async
+echo "--- [DEBUG] Iniciando slam_toolbox (online_async_launch.py, nodo: slam_toolbox) ---"
 ros2 launch slam_toolbox online_async_launch.py \
   use_sim_time:=True &
+
 
 # 5) Iniciar lifecycle manager del Map Server, sin autostart
 echo "--- [DEBUG] Iniciando lifecycle_manager_map_server (autostart=False) ---"
@@ -42,6 +44,12 @@ ros2 run nav2_lifecycle_manager lifecycle_manager \
 
 # 7) Esperar a que los nodos arranquen
 sleep 5
+
+# Debug: listar nodos y servicios activos
+echo "--- [DEBUG] Nodos activos tras arranque ---"
+ros2 node list
+echo "--- [DEBUG] Servicios activos tras arranque ---"
+ros2 service list
 
 # 8) Arrancar rosbridge_websocket en background
 echo "--- [DEBUG] Iniciando rosbridge_websocket en puerto 9090 ---"

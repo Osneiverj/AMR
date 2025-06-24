@@ -76,6 +76,13 @@ class Orchestrator(LifecycleNode):
     def _get_state(self, client, name: str):
         if not client.wait_for_service(timeout_sec=5.0):
             self.get_logger().error(f"Service {name} unavailable")
+            # Debug: listar servicios disponibles
+            import subprocess
+            try:
+                services = subprocess.check_output(['ros2', 'service', 'list'], text=True)
+                self.get_logger().error(f"Servicios ROS activos:\n{services}")
+            except Exception as e:
+                self.get_logger().error(f"No se pudo listar servicios: {e}")
             return None
         req = GetState.Request()
         fut = client.call_async(req)

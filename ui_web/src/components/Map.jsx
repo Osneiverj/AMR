@@ -20,7 +20,7 @@ export default function Map() {
 
   const [pose, setPose] = useState({ x: 0, y: 0, yaw: 0 });
   const [gridInfo, setGridInfo] = useState(null); // info de /map
-  const subscribedRef = useRef(false); // <-- NUEVO
+  const scanSubRef = useRef(null); // <-- NUEVO
 
   /* ───────── 1.  /tf  →  pose ─────────────────────────────────── */
   useEffect(() => {
@@ -97,18 +97,14 @@ export default function Map() {
   }, [pose, gridInfo]);
 
   /* ───────── 4.  nube de puntos LIDAR ─────────────────────────── */
-  // Suscripción LIDAR: solo al montar, y si gridInfo ya está listo
+  // Suscripción LIDAR: solo una vez cuando gridInfo esté listo
   useEffect(() => {
-    if (
-      !scanLayer.current ||
-      !mapRef.current ||
-      !gridInfo ||
-      subscribedRef.current // <-- ya está suscrito
-    ) return;
+    if (!scanLayer.current || !mapRef.current || !gridInfo) return;
+    if (scanSubRef.current) return; // ya suscrito
 
     scanLayer.current.addTo(mapRef.current);
 
-    const sub = ros.subscribe(
+    scanSubRef.current = ros.subscribe(
       '/scan',
       'sensor_msgs/LaserScan',
       msg => {
@@ -125,14 +121,20 @@ export default function Map() {
         });
       }
     );
+    // No return aquí: la desuscripción se hace solo al desmontar
+    // para evitar re-suscribir/desuscribir en cada cambio de gridInfo
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridInfo, mapRef.current, scanLayer.current]);
 
-    subscribedRef.current = true; // <-- marca como suscrito
-
+  // Desuscribir solo al desmontar el componente
+  useEffect(() => {
     return () => {
-      sub.unsubscribe();
-      subscribedRef.current = false; // <-- limpia la bandera
+      if (scanSubRef.current) {
+        scanSubRef.current.unsubscribe();
+        scanSubRef.current = null;
+      }
     };
-  }, [gridInfo]);
+  }, []);
 
   /* ───────── helper: bounds en CRS.Simple ─────────────────────── */
   const gridBounds = info => {
