@@ -1,5 +1,7 @@
 import rclpy
 from rclpy.lifecycle import LifecycleNode
+from rclpy.callback_groups import ReentrantCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
@@ -12,34 +14,51 @@ class Orchestrator(LifecycleNode):
     def __init__(self):
         super().__init__("ui_orchestrator")
 
-        # Servicios expuestos a la UI
-        self.create_service(Empty, "ui/start_slam", self.start_slam)
-        self.create_service(Empty, "ui/stop_slam", self.stop_slam)
-        self.create_service(LoadMap, "ui/load_map", self.load_map)
-        self.create_service(Empty, "ui/start_nav2", self.start_nav2)
-        self.create_service(Empty, "ui/stop_nav2", self.stop_nav2)
+        # Grupo reentrante para evitar deadlocks en callbacks anidados
+        self.cb_group = ReentrantCallbackGroup()
 
-        # Lifecycle clients for SLAM Toolbox and Map Server
+        # Servicios expuestos a la UI (todos usan el mismo grupo)
+        self.create_service(Empty, "ui/start_slam", self.start_slam, callback_group=self.cb_group)
+        self.create_service(Empty, "ui/stop_slam", self.stop_slam, callback_group=self.cb_group)
+        self.create_service(LoadMap, "ui/load_map", self.load_map, callback_group=self.cb_group)
+        self.create_service(Empty, "ui/start_nav2", self.start_nav2, callback_group=self.cb_group)
+        self.create_service(Empty, "ui/stop_nav2", self.stop_nav2, callback_group=self.cb_group)
+
+        # Lifecycle clients for SLAM Toolbox and Map Server (todos usan el mismo grupo)
         self.slam_lifecycle_client = self.create_client(
-            ChangeState, "/slam_toolbox/change_state"
+            ChangeState, "/slam_toolbox/change_state", callback_group=self.cb_group
         )
         self.slam_state_client = self.create_client(
-            GetState, "/slam_toolbox/get_state"
+            GetState, "/slam_toolbox/get_state", callback_group=self.cb_group
         )
 
-        # Cliente para map_server y su servicio load_map
         self.map_load_client = self.create_client(
-            LoadMap, "/map_server/load_map"
+            LoadMap, "/map_server/load_map", callback_group=self.cb_group
         )
         self.map_lifecycle_client = self.create_client(
-            ChangeState, "/map_server/change_state"
+            ChangeState, "/map_server/change_state", callback_group=self.cb_group
         )
         self.map_state_client = self.create_client(
-            GetState, "/map_server/get_state"
+            GetState, "/map_server/get_state", callback_group=self.cb_group
         )
         self.nav2_lifecycle_client = self.create_client(
-            ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes"
+            ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes", callback_group=self.cb_group
         )
+
+        # Esperar a que los servicios críticos estén disponibles antes de continuar
+        required_services = [
+            (self.slam_state_client,   '/slam_toolbox/get_state'),
+            (self.slam_lifecycle_client, '/slam_toolbox/change_state'),
+            (self.map_state_client,    '/map_server/get_state'),
+            (self.map_lifecycle_client, '/map_server/change_state'),
+            (self.nav2_lifecycle_client,'/lifecycle_manager_navigation/manage_nodes'),
+        ]
+        for client, name in required_services:
+            self.get_logger().info(f"Esperando servicio {name} ...")
+            if not client.wait_for_service(timeout_sec=30.0):
+                self.get_logger().fatal(f"¡{name} NO está disponible! Saliendo.")
+                rclpy.shutdown()
+                return
 
     # ---------------------- Helper methods ----------------------
     def _call_change_state(self, client, name: str, transition: int) -> bool:
@@ -240,9 +259,13 @@ class Orchestrator(LifecycleNode):
 def main(args=None):
     rclpy.init(args=args)
     node = Orchestrator()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    try:
+        executor.spin()
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":
