@@ -8,6 +8,7 @@ from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
 
 from lifecycle_msgs.srv import ChangeState, GetState
 from lifecycle_msgs.msg import Transition, State
+from slam_toolbox_msgs.srv import Reset, Pause
 
 
 class Orchestrator(LifecycleNode):
@@ -24,13 +25,15 @@ class Orchestrator(LifecycleNode):
         self.create_service(Empty, "ui/start_nav2", self.start_nav2, callback_group=self.cb_group)
         self.create_service(Empty, "ui/stop_nav2", self.stop_nav2, callback_group=self.cb_group)
 
-        # Lifecycle clients for SLAM Toolbox and Map Server (todos usan el mismo grupo)
-        self.slam_lifecycle_client = self.create_client(
-            ChangeState, "/slam_toolbox/change_state", callback_group=self.cb_group
+        # Clientes a servicios de SLAM Toolbox (no lifecycle)
+        self.slam_reset_client = self.create_client(
+            Reset, "/slam_toolbox/reset", callback_group=self.cb_group
         )
-        self.slam_state_client = self.create_client(
-            GetState, "/slam_toolbox/get_state", callback_group=self.cb_group
+        self.slam_pause_client = self.create_client(
+            Pause, "/slam_toolbox/pause_new_measurements", callback_group=self.cb_group
         )
+
+        # Lifecycle clients para Map Server
 
         self.map_load_client = self.create_client(
             LoadMap, "/map_server/load_map", callback_group=self.cb_group
@@ -98,6 +101,32 @@ class Orchestrator(LifecycleNode):
             return None
         return res.current_state.id
 
+    def _call_reset(self, pause: bool) -> bool:
+        """Call /slam_toolbox/reset service."""
+        if not self.slam_reset_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error("Service /slam_toolbox/reset unavailable")
+            return False
+        req = Reset.Request()
+        req.pause_new_measurements = pause
+        fut = self.slam_reset_client.call_async(req)
+        rclpy.spin_until_future_complete(self, fut)
+        res = fut.result()
+        if res and res.result == 0:
+            return True
+        self.get_logger().error("Reset service failed")
+        return False
+
+    def _call_pause(self) -> bool:
+        """Toggle pause via /slam_toolbox/pause_new_measurements."""
+        if not self.slam_pause_client.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error("Service /slam_toolbox/pause_new_measurements unavailable")
+            return False
+        req = Pause.Request()
+        fut = self.slam_pause_client.call_async(req)
+        rclpy.spin_until_future_complete(self, fut)
+        res = fut.result()
+        return bool(res and res.status)
+
     # ---------------------- SLAM / Nav2 control ----------------------
     def start_slam(self, request, response):
         # Ensure nav2 stack is down before mapping
@@ -122,44 +151,19 @@ class Orchestrator(LifecycleNode):
                 Transition.TRANSITION_CLEANUP,
             )
 
-        # Configura y activa SLAM Toolbox solo si es necesario
-        slam_state = self._get_state(self.slam_state_client, "/slam_toolbox/get_state")
-        if slam_state == State.PRIMARY_STATE_UNCONFIGURED:
-            self._call_change_state(
-                self.slam_lifecycle_client,
-                "/slam_toolbox/change_state",
-                Transition.TRANSITION_CONFIGURE,
-            )
-            slam_state = State.PRIMARY_STATE_INACTIVE
-        if slam_state == State.PRIMARY_STATE_INACTIVE:
-            self._call_change_state(
-                self.slam_lifecycle_client,
-                "/slam_toolbox/change_state",
-                Transition.TRANSITION_ACTIVATE,
-            )
+        # Reinicia SLAM Toolbox para comenzar un nuevo mapeo
+        self._call_reset(False)
         return response
 
     def stop_slam(self, request, response):
-        self.get_logger().info("Deactivating SLAM Toolbox")
-        slam_state = self._get_state(self.slam_state_client, "/slam_toolbox/get_state")
-        if slam_state == State.PRIMARY_STATE_ACTIVE:
-            self._call_change_state(
-                self.slam_lifecycle_client,
-                "/slam_toolbox/change_state",
-                Transition.TRANSITION_DEACTIVATE,
-            )
+        self.get_logger().info("Pausing SLAM Toolbox")
+        self._call_pause()
         return response
 
     def load_map(self, request, response):
         # Switch from mapping to navigation: stop SLAM, reset map server, load map, start Nav2
-        self.get_logger().info("Deactivating SLAM Toolbox before loading map")
-        slam_state = self._get_state(self.slam_state_client, "/slam_toolbox/get_state")
-        if slam_state == State.PRIMARY_STATE_ACTIVE:
-            self._call_change_state(
-                self.slam_lifecycle_client,
-                "/slam_toolbox/change_state",
-                Transition.TRANSITION_DEACTIVATE,
-            )
+        self.get_logger().info("Pausing SLAM Toolbox before loading map")
+        self._call_pause()
 
         # Limpia map_server solo si estaba activo
         map_state = self._get_state(self.map_state_client, "/map_server/get_state")
@@ -201,17 +205,13 @@ class Orchestrator(LifecycleNode):
             )
             return response
 
-        # Activa map_server y reactiva SLAM
+        # Activa map_server y reanuda SLAM
         self._call_change_state(
             self.map_lifecycle_client,
             "/map_server/change_state",
             Transition.TRANSITION_ACTIVATE,
         )
-        self._call_change_state(
-            self.slam_lifecycle_client,
-            "/slam_toolbox/change_state",
-            Transition.TRANSITION_ACTIVATE,
-        )
+        self._call_pause()
 
         self.get_logger().info("Starting Nav2 stack after map load")
         self._call_manage(
