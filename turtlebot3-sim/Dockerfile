@@ -18,14 +18,21 @@ RUN apt-get update && \
 
 # Crea, copia y compila el workspace de ROS 2
 WORKDIR /ros2_ws
+
+# Clone TB3 sources INSIDE workspace
+RUN apt-get update && apt-get install -y git       \
+ && git clone -b humble-devel https://github.com/ROBOTIS-GIT/turtlebot3.git src/turtlebot3
+    
 COPY orchestrator ./src/orchestrator
- # Usa bash para cargar correctamente el entorno de ROS 2 y construir
+# Usa bash para cargar correctamente el entorno de ROS 2 y construir
 # build en “merge-install” para que quede todo en /ros2_ws/install/{bin,share,…}
 RUN /bin/bash -c "\
     source /opt/ros/humble/setup.bash && \
-    colcon build --merge-install --packages-select orchestrator \
+    colcon build --merge-install \
   " && \
-  rm -rf log src
+  rm -rf log src \
+ && mkdir -p /ros2_ws/install/lib/orchestrator \
+ && ln -s /ros2_ws/install/bin/orchestrator /ros2_ws/install/lib/orchestrator/orchestrator
 
 # --- CONFIGURACIÓN DEL ENTRYPOINT ---
 # Copia el script de entrada a la raíz de la imagen

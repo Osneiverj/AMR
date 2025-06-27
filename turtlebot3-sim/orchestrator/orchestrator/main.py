@@ -45,20 +45,6 @@ class Orchestrator(LifecycleNode):
             ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes", callback_group=self.cb_group
         )
 
-        # Esperar a que los servicios críticos estén disponibles antes de continuar
-        required_services = [
-            (self.slam_state_client,   '/slam_toolbox/get_state'),
-            (self.slam_lifecycle_client, '/slam_toolbox/change_state'),
-            (self.map_state_client,    '/map_server/get_state'),
-            (self.map_lifecycle_client, '/map_server/change_state'),
-            (self.nav2_lifecycle_client,'/lifecycle_manager_navigation/manage_nodes'),
-        ]
-        for client, name in required_services:
-            self.get_logger().info(f"Esperando servicio {name} ...")
-            if not client.wait_for_service(timeout_sec=30.0):
-                self.get_logger().fatal(f"¡{name} NO está disponible! Saliendo.")
-                rclpy.shutdown()
-                return
 
     # ---------------------- Helper methods ----------------------
     def _call_change_state(self, client, name: str, transition: int) -> bool:
@@ -206,7 +192,7 @@ class Orchestrator(LifecycleNode):
         fut = self.map_load_client.call_async(request)
         rclpy.spin_until_future_complete(self, fut)
         result = fut.result()
-        if result is None or result.result != LoadMap_Response.RESULT_SUCCESS:
+        if result is None or result.result != LoadMap.Response.RESULT_SUCCESS:
             self.get_logger().error("LoadMap call failed")
             response.result = (
 

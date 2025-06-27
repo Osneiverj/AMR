@@ -2,9 +2,12 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, LogInfo
-from launch.launch_description_sources import PythonLaunchDescriptionSource, XmlLaunchDescriptionSource
+from launch.actions import IncludeLaunchDescription, LogInfo, TimerAction
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
 
 
 def generate_launch_description():
@@ -28,48 +31,80 @@ def generate_launch_description():
     # 1) Gazebo TurtleBot3 world
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(gazebo_launch_file),
-        launch_arguments={'use_sim_time': 'True'}.items()
-    )
-
-    # 2) SLAM Toolbox (async lifecycle, autostart=False)
-    slam_toolbox = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(slam_launch_file),
         launch_arguments={
-            'autostart': 'False',
-            'use_sim_time': 'True'
+            'use_sim_time': 'True',
+            'world': LaunchConfiguration('world')
         }.items()
     )
 
-    # 3) Nav2 bringup (lifecycle, autostart=False)
+    # 2) SLAM Toolbox (async lifecycle, autostart=True)
+    slam_toolbox = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(slam_launch_file),
+        launch_arguments={
+            'autostart': 'True',
+            'use_sim_time': 'True',
+            'slam_params_file': LaunchConfiguration('slam_params_file')
+        }.items()
+    )
+
+    # 3) Nav2 bringup (lifecycle, autostart=True)
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_launch_file),
         launch_arguments={
-            'autostart': 'False',
-            'use_sim_time': 'True'
+            'autostart': 'True',
+            'use_sim_time': 'True',
+            'map': LaunchConfiguration('map'),
+            'params_file': LaunchConfiguration('params_file')
         }.items()
     )
 
     # 4) rosbridge_websocket (XML launch)
     rosbridge = IncludeLaunchDescription(
-        XmlLaunchDescriptionSource(rosbridge_launch_file),
+        XMLLaunchDescriptionSource(rosbridge_launch_file),
         launch_arguments={
             'port': '9090'
         }.items()
     )
 
     # 5) Nodo Orchestrator
-    orchestrator_node = Node(
+    _orchestrator_core_node = Node(
         package='orchestrator',
         executable='orchestrator',
         name='ui_orchestrator',
         output='screen'
     )
 
+    # Declarar argumentos de lanzamiento estándar de TurtleBot3
+    declare_world_arg = DeclareLaunchArgument('world', default_value='empty', description='World file name')
+    declare_map_arg = DeclareLaunchArgument('map', default_value='', description='Map file name')
+    declare_params_file_arg = DeclareLaunchArgument(
+        'params_file',
+        default_value=os.path.join(
+            get_package_share_directory('turtlebot3_navigation2'),
+            'param',
+            'burger.yaml'
+        ),
+        description='Params file'
+    )
+    declare_slam_params_file_arg = DeclareLaunchArgument(
+        'slam_params_file',
+        default_value=os.path.join(
+            get_package_share_directory('slam_toolbox'),
+            'config',
+            'mapper_params_online_async.yaml'
+        ),
+        description='SLAM params file'
+    )
+
     # Devolver todas las acciones: debug + componentes
     return LaunchDescription(debug_logs + [
+        declare_world_arg,
+        declare_map_arg,
+        declare_params_file_arg,
+        declare_slam_params_file_arg,
         gazebo,
         slam_toolbox,
         nav2,
         rosbridge,
-        orchestrator_node
+        TimerAction(period=1.0, actions=[_orchestrator_core_node])
     ])
