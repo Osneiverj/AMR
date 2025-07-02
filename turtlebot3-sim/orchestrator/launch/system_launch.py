@@ -58,7 +58,19 @@ def generate_launch_description():
         }.items()
     )
 
-    # 4) rosbridge_websocket (XML launch)
+    # 4) Map Server (lifecycle)
+    map_server_node = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='map_server',
+        output='screen',
+        parameters=[{
+            'yaml_filename': LaunchConfiguration('map'),
+            'use_sim_time': True
+        }]
+    )
+
+    # 5) rosbridge_websocket (XML launch)
     rosbridge = IncludeLaunchDescription(
         XMLLaunchDescriptionSource(rosbridge_launch_file),
         launch_arguments={
@@ -76,7 +88,7 @@ def generate_launch_description():
 
     # Declarar argumentos de lanzamiento estándar de TurtleBot3
     declare_world_arg = DeclareLaunchArgument('world', default_value='empty', description='World file name')
-    declare_map_arg = DeclareLaunchArgument('map', default_value='', description='Map file name')
+    declare_map_arg = DeclareLaunchArgument('map', default_value='/root/maps/Turtle1.yaml', description='Map file name')
     declare_params_file_arg = DeclareLaunchArgument(
         'params_file',
         default_value=os.path.join(
@@ -105,6 +117,7 @@ def generate_launch_description():
         gazebo,
         slam_toolbox,
         nav2,
+        map_server_node,
         rosbridge,
         TimerAction(period=1.0, actions=[_orchestrator_core_node])
     ])

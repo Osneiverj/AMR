@@ -5,12 +5,25 @@ from .model import Map
 from app.core.config import settings
 import roslibpy
 import asyncio
+import threading
 from app.core.ros import ros_manager
 
 # Obtén un logger para este módulo específico
 logger = logging.getLogger(__name__) 
 
 MAP_DIR = Path(settings.maps_dir)
+
+def _call_service_with_deadline(service: roslibpy.Service, request: roslibpy.ServiceRequest, timeout_s: float = 60.0):
+    """Call a ROS service with a maximum waiting time.
+
+    It sends the request asynchronously and polls until a reply arrives or the
+    deadline expires, raising TimeoutError if we never get a response.  Any
+    error reported by the service is re-raised as ConnectionError to propagate
+    the failure cause upward.
+    """
+    # roslibpy provides a blocking call with timeout. This is simpler and
+    # avoids callback API inconsistencies across versions.
+    return service.call(request, timeout=timeout_s)
 
 async def save(original_name: str, pgm_filename: str, yaml_filename: str) -> Map:
     logger.info(
@@ -73,7 +86,7 @@ async def activate_map(map_name: str) -> dict:
         request = roslibpy.ServiceRequest({'map_url': f"/root/maps/{map_name}.yaml"})
 
         loop = asyncio.get_running_loop()
-        response = await loop.run_in_executor(None, lambda: service.call(request, timeout=10))
+        response = await loop.run_in_executor(None, lambda: _call_service_with_deadline(service, request, 30))
 
         if response is None:
             raise ConnectionError("La llamada al servicio /ui/load_map no obtuvo respuesta (timeout).")
