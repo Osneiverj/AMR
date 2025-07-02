@@ -13,3 +13,14 @@ services:
       - VITE_API_URL=http://localhost:5000
     networks:
       - ros_net
+
+  api:
+    build: null
+    image: python:3.11-slim
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    working_dir: /app
+    volumes:
+      - ./api:/app
+      - ./maps:/maps
+    networks:
+      - ros_net
