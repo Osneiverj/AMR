@@ -1,0 +1,11 @@
+services:
+  tb3_sim:
+    build: null
+    image: turtlebot3-sim:latest
+    volumes:
+      - ../maps:/root/maps
+      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /run/desktop/mnt/host/wslg:/mnt/wslg
+      - ./orchestrator:/ros2_ws/src/orchestrator
+    entrypoint: /bin/bash
+    command: -c "colcon build --merge-install && exec /entrypoint.sh"

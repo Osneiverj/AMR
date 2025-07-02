@@ -17,6 +17,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: turtlebot3-sim:latest
     container_name: tb3_sim
     environment: *wslg-env
     networks: [ros_net]
