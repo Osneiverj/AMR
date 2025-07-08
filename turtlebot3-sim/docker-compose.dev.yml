@@ -1,6 +1,5 @@
 services:
   tb3_sim:
-    build: null
     image: turtlebot3-sim:latest
     volumes:
       - ../maps:/root/maps

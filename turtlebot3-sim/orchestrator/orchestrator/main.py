@@ -128,9 +128,12 @@ class Orchestrator(LifecycleNode):
 
     def _shutdown_slam(self) -> bool:
         """Deactivate and shutdown slam_toolbox lifecycle node."""
+        # If the lifecycle service is not available, assume SLAM Toolbox has already been
+        # terminated (e.g., by its own LifecycleManager) and treat this as a success so
+        # the orchestrator pipeline can continue without spurious errors.
         if not self.slam_lifecycle_client.wait_for_service(timeout_sec=30.0):
-            self.get_logger().error("Service /slam_toolbox/change_state unavailable")
-            return False
+            self.get_logger().warn("/slam_toolbox/change_state service not available – assuming SLAM Toolbox is already shutdown")
+            return True
         # Deactivate if active
         self._call_change_state(
             self.slam_lifecycle_client,
