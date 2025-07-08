@@ -260,6 +260,7 @@ export default function Map() {
         <MapClickHandler />
       </MapContainer>
       <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center gap-2 pb-2">
+
         <button
           className={`btn ${mode === 'initial' ? 'bg-blue-500 text-white' : 'bg-white'}`}
           onClick={() => setMode(mode === 'initial' ? null : 'initial')}
