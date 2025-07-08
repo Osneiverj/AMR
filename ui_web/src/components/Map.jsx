@@ -1,5 +1,5 @@
 // src/components/Map.jsx
-import { MapContainer, useMap } from 'react-leaflet';
+import { MapContainer, useMap, useMapEvent } from 'react-leaflet';
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import ROSLIB from 'roslib';
@@ -7,7 +7,6 @@ import ros from '../services/rosService';
 import { FOOTPRINT } from '../utils/constants';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../AuthContext';
-
 import { PointsAPI } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 
@@ -31,7 +30,6 @@ export default function Map() {
   const [mode, setMode] = useState(null); // initial | goal | point
   const { selectedMap, setPoints } = useData();
   const { token } = useAuth();
-
 
   // Publishers for initial pose and goal pose
   useEffect(() => {
@@ -190,6 +188,11 @@ export default function Map() {
    return null;
   }
 
+  function MapClickHandler() {
+    useMapEvent('click', onMapClick);
+    return null;
+  }
+
   async function onMapClick(e) {
     const { lat, lng } = e.latlng;
     if (mode === 'initial' && initPubRef.current) {
@@ -239,7 +242,6 @@ export default function Map() {
         token
       );
       setPoints(await PointsAPI.list(selectedMap, token));
-
       setMode(null);
     }
   }
@@ -253,9 +255,9 @@ export default function Map() {
         minZoom={-4}
         style={{ height: '26rem', width: '100%' }}
         scrollWheelZoom
-        onClick={onMapClick}
       >
         <MapInit />
+        <MapClickHandler />
       </MapContainer>
       <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center gap-2 pb-2">
 
