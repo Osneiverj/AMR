@@ -6,6 +6,8 @@ import ROSLIB from 'roslib';
 import ros from '../services/rosService';
 import { FOOTPRINT } from '../utils/constants';
 import { useData } from '../context/DataContext';
+import { useAuth } from '../AuthContext';
+
 import { PointsAPI } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 
@@ -28,6 +30,8 @@ export default function Map() {
   const scanSubRef = useRef(null); // <-- NUEVO
   const [mode, setMode] = useState(null); // initial | goal | point
   const { selectedMap, setPoints } = useData();
+  const { token } = useAuth();
+
 
   // Publishers for initial pose and goal pose
   useEffect(() => {
@@ -231,9 +235,11 @@ export default function Map() {
             q3: quatFromYaw(yaw).z,
             q4: quatFromYaw(yaw).w
           }
-        }
+        },
+        token
       );
-      setPoints(await PointsAPI.list(selectedMap));
+      setPoints(await PointsAPI.list(selectedMap, token));
+
       setMode(null);
     }
   }
@@ -251,7 +257,8 @@ export default function Map() {
       >
         <MapInit />
       </MapContainer>
-      <div className="absolute top-2 left-2 z-10 flex gap-2">
+      <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center gap-2 pb-2">
+
         <button
           className={`btn ${mode === 'initial' ? 'bg-blue-500 text-white' : 'bg-white'}`}
           onClick={() => setMode(mode === 'initial' ? null : 'initial')}
