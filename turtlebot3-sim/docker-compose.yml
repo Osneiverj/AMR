@@ -30,19 +30,19 @@ services:
     working_dir: /root/maps
     # La sección 'command' se elimina porque ahora la controla el entrypoint.sh
 
-  rviz:
-    image: osrf/ros:humble-desktop # Usamos una imagen pre-construida para Rviz
-    container_name: rviz_tb3
-    depends_on:
-      - tb3_sim
-    environment: *wslg-env
-    networks: [ros_net]
-    volumes:
-      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
-      - /run/desktop/mnt/host/wslg:/mnt/wslg
-    command: >
-      bash -c "source /opt/ros/humble/setup.bash &&
-               rviz2 -d /opt/ros/humble/share/turtlebot3_gazebo/rviz/turtlebot3_gazebo.rviz"
+  # rviz:
+  #   image: osrf/ros:humble-desktop # Usamos una imagen pre-construida para Rviz
+  #   container_name: rviz_tb3
+  #   depends_on:
+  #     - tb3_sim
+  #   environment: *wslg-env
+  #   networks: [ros_net]
+  #   volumes:
+  #     - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+  #     - /run/desktop/mnt/host/wslg:/mnt/wslg
+  #   command: >
+  #     bash -c "source /opt/ros/humble/setup.bash &&
+  #              rviz2 -d /opt/ros/humble/share/turtlebot3_gazebo/rviz/turtlebot3_gazebo.rviz"
 
 networks:
   ros_net:

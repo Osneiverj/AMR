@@ -3,6 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, LogInfo, TimerAction
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -37,14 +38,15 @@ def generate_launch_description():
         }.items()
     )
 
-    # 2) SLAM Toolbox (async lifecycle, autostart=True)
+    # 2) SLAM Toolbox (async lifecycle, autostart=True) - opcional
     slam_toolbox = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(slam_launch_file),
         launch_arguments={
             'autostart': 'True',
             'use_sim_time': 'True',
             'slam_params_file': LaunchConfiguration('slam_params_file')
-        }.items()
+        }.items(),
+        condition=IfCondition(LaunchConfiguration('use_slam'))
     )
 
     # 3) Nav2 bringup (lifecycle, autostart=True)
@@ -98,6 +100,12 @@ def generate_launch_description():
         ),
         description='Params file'
     )
+    declare_use_slam_arg = DeclareLaunchArgument(
+        'use_slam',
+        default_value='False',
+        description='Launch SLAM Toolbox (True) o solo usar mapa existente (False)'
+    )
+
     declare_slam_params_file_arg = DeclareLaunchArgument(
         'slam_params_file',
         default_value=os.path.join(
@@ -110,8 +118,10 @@ def generate_launch_description():
 
     # Devolver todas las acciones: debug + componentes
     return LaunchDescription(debug_logs + [
+
         declare_world_arg,
         declare_map_arg,
+        declare_use_slam_arg,
         declare_params_file_arg,
         declare_slam_params_file_arg,
         gazebo,

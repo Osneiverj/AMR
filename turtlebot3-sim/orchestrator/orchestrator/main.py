@@ -131,7 +131,7 @@ class Orchestrator(LifecycleNode):
         # If the lifecycle service is not available, assume SLAM Toolbox has already been
         # terminated (e.g., by its own LifecycleManager) and treat this as a success so
         # the orchestrator pipeline can continue without spurious errors.
-        if not self.slam_lifecycle_client.wait_for_service(timeout_sec=30.0):
+        if not self.slam_lifecycle_client.wait_for_service(timeout_sec=3.0):
             self.get_logger().warn("/slam_toolbox/change_state service not available – assuming SLAM Toolbox is already shutdown")
             return True
         # Deactivate if active
@@ -149,9 +149,12 @@ class Orchestrator(LifecycleNode):
 
     def _call_pause(self) -> bool:
         """Toggle pause via /slam_toolbox/pause_new_measurements."""
-        if not self.slam_pause_client.wait_for_service(timeout_sec=30.0):
-            self.get_logger().error("Service /slam_toolbox/pause_new_measurements unavailable")
-            return False
+        if not self.slam_pause_client.wait_for_service(timeout_sec=3.0):
+            # If the pause service is not available, we assume SLAM Toolbox is not running
+            # (e.g. because the system was launched with use_slam:=False) and treat this
+            # as a successful no-op so the orchestrator can proceed without blocking.
+            self.get_logger().warn("/slam_toolbox/pause_new_measurements service not available – assuming SLAM disabled")
+            return True
         req = Pause.Request()
         fut = self.slam_pause_client.call_async(req)
         rclpy.spin_until_future_complete(self, fut)
@@ -203,13 +206,10 @@ class Orchestrator(LifecycleNode):
                 )
 
         self.get_logger().info(f"Loading map via service: {request.map_url}")
-        total_wait = 0.0
-        while not self.map_load_client.wait_for_service(timeout_sec=5.0):
-            total_wait += 5.0
-            if total_wait >= 90.0:
-                self.get_logger().error("Service /map_server/load_map unavailable after 90s")
-                response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
-                return response
+        if not self.map_load_client.wait_for_service(timeout_sec=10.0):
+            self.get_logger().error("Service /map_server/load_map unavailable (timeout 10s)")
+            response.result = LoadMap.Response.RESULT_UNDEFINED_FAILURE
+            return response
         fut = self.map_load_client.call_async(request)
         rclpy.spin_until_future_complete(self, fut)
         result = fut.result()
