@@ -1,9 +1,13 @@
 // src/components/Map.jsx
-import { MapContainer, useMap } from 'react-leaflet';
+import { MapContainer, useMap, useMapEvent } from 'react-leaflet';
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import ROSLIB from 'roslib';
 import ros from '../services/rosService';
 import { FOOTPRINT } from '../utils/constants';
+import { useData } from '../context/DataContext';
+import { useAuth } from '../AuthContext';
+import { PointsAPI } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 
 /* CRS.Simple = plano en metros.
@@ -14,13 +18,50 @@ export default function Map() {
   const mapRef      = useRef(null);
   const gridLayer   = useRef(null);
   const robotLayer  = useRef(null);
+  const spriteRef   = useRef(null);
   const scanLayer   = useRef(L.layerGroup());   // nube de puntos
   const canvas      = useRef(document.createElement('canvas'));
   const poseRef     = useRef({ x: 0, y: 0, yaw: 0 });
+  const initPubRef  = useRef(null);
+  const goalPubRef  = useRef(null);
 
   const [pose, setPose] = useState({ x: 0, y: 0, yaw: 0 });
   const [gridInfo, setGridInfo] = useState(null); // info de /map
   const scanSubRef = useRef(null); // <-- NUEVO
+  const [mode, setMode] = useState(null); // initial | goal | point
+  const [initStep, setInitStep] = useState(null); // null | {lat, lng}
+  const { selectedMap, setPoints } = useData();
+  const { token } = useAuth();
+
+  // Publishers for initial pose and goal pose
+  useEffect(() => {
+    initPubRef.current = ros.advertise(
+      '/initialpose',
+      'geometry_msgs/PoseWithCovarianceStamped'
+    );
+    goalPubRef.current = ros.advertise(
+      '/goal_pose',
+      'geometry_msgs/PoseStamped'
+    );
+    // Explicitly advertise
+    initPubRef.current.advertise();
+    goalPubRef.current.advertise();
+    return () => {
+      initPubRef.current.unadvertise();
+      goalPubRef.current.unadvertise();
+    };
+  }, []);
+
+  // Update cursor when selecting modes
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const container = mapRef.current.getContainer();
+    if (mode === 'initial') {
+      container.style.cursor = 'crosshair';
+    } else if (!initStep) {
+      container.style.cursor = '';
+    }
+  }, [mode, initStep]);
 
   /* ───────── 1.  /tf  →  pose ─────────────────────────────────── */
   useEffect(() => {
@@ -146,6 +187,20 @@ export default function Map() {
    ];
   };
 
+  const quatFromYaw = yaw => ({
+    x: 0,
+    y: 0,
+    z: Math.sin(yaw / 2),
+    w: Math.cos(yaw / 2)
+  });
+
+  const robotIcon = L.divIcon({
+    className: 'robot-sprite',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    html: '<div></div>'
+  });
+
   /* ───────── inicia mapa ───────────────────────────────────────── */
   function MapInit() {
    const map = useMap();
@@ -153,16 +208,121 @@ export default function Map() {
    return null;
   }
 
+  function MapClickHandler() {
+    useMapEvent('click', onMapClick);
+    useMapEvent('mousemove', onMouseMove);
+    return null;
+  }
+
+  function onMouseMove(e) {
+    if (mode === 'initial' && initStep && spriteRef.current) {
+      const { lat, lng } = e.latlng;
+      const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
+      const el = spriteRef.current.getElement();
+      if (el) el.style.transform = `rotate(${-yaw}rad)`; // follow mouse
+    }
+  }
+
+  async function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+    if (mode === 'initial' && initPubRef.current) {
+      if (!initStep) {
+        setInitStep({ lat, lng });
+        spriteRef.current = L.marker([lat, lng], { icon: robotIcon, interactive: false }).addTo(mapRef.current);
+        mapRef.current.dragging.disable();
+        mapRef.current.getContainer().style.cursor = 'crosshair';
+      } else {
+        const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
+        const msg = new ROSLIB.Message({
+          header: { frame_id: 'map' },
+          pose: {
+            pose: {
+              position: { x: initStep.lng, y: initStep.lat, z: 0 },
+              orientation: quatFromYaw(yaw)
+            },
+            covariance: Array(36).fill(0)
+          }
+        });
+        initPubRef.current.publish(msg);
+        mapRef.current.dragging.enable();
+        mapRef.current.getContainer().style.cursor = '';
+        if (spriteRef.current) {
+          spriteRef.current.remove();
+          spriteRef.current = null;
+        }
+        setInitStep(null);
+        setMode(null);
+      }
+    } else if (mode === 'goal' && goalPubRef.current) {
+      const yaw = parseFloat(prompt('Yaw (grados)', '0')) * Math.PI / 180 || 0;
+      const msg = new ROSLIB.Message({
+        header: { frame_id: 'map' },
+        pose: {
+          position: { x: lng, y: lat, z: 0 },
+          orientation: quatFromYaw(yaw)
+        }
+      });
+      goalPubRef.current.publish(msg);
+      setMode(null);
+    } else if (mode === 'point' && selectedMap) {
+      const name = prompt('Nombre del punto');
+      if (!name) return;
+      const yaw = parseFloat(prompt('Yaw (grados)', '0')) * Math.PI / 180 || 0;
+      await PointsAPI.create(
+        {
+          name,
+          type: 'way',
+          map_id: selectedMap,
+          target: {
+            x: lng,
+            y: lat,
+            z: 0,
+            q1: 0,
+            q2: 0,
+            q3: quatFromYaw(yaw).z,
+            q4: quatFromYaw(yaw).w
+          }
+        },
+        token
+      );
+      setPoints(await PointsAPI.list(selectedMap, token));
+      setMode(null);
+    }
+  }
+
   return (
-   <MapContainer
-    crs={L.CRS.Simple}
-    center={[0, 0]}
-    zoom={0}
-    minZoom={-4}
-    style={{ height: '26rem', width: '100%' }}
-    scrollWheelZoom
-   >
-    <MapInit />
-   </MapContainer>
-  );
-}
+    <div className="relative">
+      <MapContainer
+        crs={L.CRS.Simple}
+        center={[0, 0]}
+        zoom={0}
+        minZoom={-4}
+        style={{ height: '26rem', width: '100%' }}
+        scrollWheelZoom
+      >
+        <MapInit />
+        <MapClickHandler />
+      </MapContainer>
+      <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center gap-2 pb-2">
+        <button
+          className={`btn ${mode === 'initial' ? 'bg-blue-500 text-white' : 'bg-white'}`}
+          onClick={() => setMode(mode === 'initial' ? null : 'initial')}
+        >
+          Pose inicial
+        </button>
+        <button
+          className={`btn ${mode === 'goal' ? 'bg-blue-500 text-white' : 'bg-white'}`}
+          onClick={() => setMode(mode === 'goal' ? null : 'goal')}
+        >
+          Objetivo
+        </button>
+        <button
+          className={`btn ${mode === 'point' ? 'bg-blue-500 text-white' : 'bg-white'}`}
+          onClick={() => setMode(mode === 'point' ? null : 'point')}
+        >
+          Nuevo punto
+        </button>
+      </div>
+    </div>
+  );}
+

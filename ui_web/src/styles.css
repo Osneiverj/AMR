@@ -1,5 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 @import "leaflet/dist/leaflet.css";
+
+.robot-sprite {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid black;
+  transform-origin: center center;
+  box-sizing: border-box;
+}
