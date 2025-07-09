@@ -30,7 +30,6 @@ export default function Map() {
   const scanSubRef = useRef(null); // <-- NUEVO
   const [mode, setMode] = useState(null); // initial | goal | point
   const [initStep, setInitStep] = useState(null); // null | {lat, lng}
-
   const { selectedMap, setPoints } = useData();
   const { token } = useAuth();
 
@@ -63,7 +62,6 @@ export default function Map() {
       container.style.cursor = '';
     }
   }, [mode, initStep]);
-
 
   /* ───────── 1.  /tf  →  pose ─────────────────────────────────── */
   useEffect(() => {
@@ -221,7 +219,7 @@ export default function Map() {
       const { lat, lng } = e.latlng;
       const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
       const el = spriteRef.current.getElement();
-      if (el) el.style.transform = `rotate(${yaw}rad)`;
+      if (el) el.style.transform = `rotate(${-yaw}rad)`; // follow mouse
     }
   }
 
