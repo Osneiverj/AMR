@@ -18,6 +18,7 @@ export default function Map() {
   const mapRef      = useRef(null);
   const gridLayer   = useRef(null);
   const robotLayer  = useRef(null);
+  const spriteRef   = useRef(null);
   const scanLayer   = useRef(L.layerGroup());   // nube de puntos
   const canvas      = useRef(document.createElement('canvas'));
   const poseRef     = useRef({ x: 0, y: 0, yaw: 0 });
@@ -28,6 +29,8 @@ export default function Map() {
   const [gridInfo, setGridInfo] = useState(null); // info de /map
   const scanSubRef = useRef(null); // <-- NUEVO
   const [mode, setMode] = useState(null); // initial | goal | point
+  const [initStep, setInitStep] = useState(null); // null | {lat, lng}
+
   const { selectedMap, setPoints } = useData();
   const { token } = useAuth();
 
@@ -49,6 +52,18 @@ export default function Map() {
       goalPubRef.current.unadvertise();
     };
   }, []);
+
+  // Update cursor when selecting modes
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const container = mapRef.current.getContainer();
+    if (mode === 'initial') {
+      container.style.cursor = 'crosshair';
+    } else if (!initStep) {
+      container.style.cursor = '';
+    }
+  }, [mode, initStep]);
+
 
   /* ───────── 1.  /tf  →  pose ─────────────────────────────────── */
   useEffect(() => {
@@ -181,6 +196,13 @@ export default function Map() {
     w: Math.cos(yaw / 2)
   });
 
+  const robotIcon = L.divIcon({
+    className: 'robot-sprite',
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    html: '<div></div>'
+  });
+
   /* ───────── inicia mapa ───────────────────────────────────────── */
   function MapInit() {
    const map = useMap();
@@ -190,25 +212,49 @@ export default function Map() {
 
   function MapClickHandler() {
     useMapEvent('click', onMapClick);
+    useMapEvent('mousemove', onMouseMove);
     return null;
+  }
+
+  function onMouseMove(e) {
+    if (mode === 'initial' && initStep && spriteRef.current) {
+      const { lat, lng } = e.latlng;
+      const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
+      const el = spriteRef.current.getElement();
+      if (el) el.style.transform = `rotate(${yaw}rad)`;
+    }
   }
 
   async function onMapClick(e) {
     const { lat, lng } = e.latlng;
     if (mode === 'initial' && initPubRef.current) {
-      const yaw = parseFloat(prompt('Yaw (grados)', '0')) * Math.PI / 180 || 0;
-      const msg = new ROSLIB.Message({
-        header: { frame_id: 'map' },
-        pose: {
+      if (!initStep) {
+        setInitStep({ lat, lng });
+        spriteRef.current = L.marker([lat, lng], { icon: robotIcon, interactive: false }).addTo(mapRef.current);
+        mapRef.current.dragging.disable();
+        mapRef.current.getContainer().style.cursor = 'crosshair';
+      } else {
+        const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
+        const msg = new ROSLIB.Message({
+          header: { frame_id: 'map' },
           pose: {
-            position: { x: lng, y: lat, z: 0 },
-            orientation: quatFromYaw(yaw)
-          },
-          covariance: Array(36).fill(0)
+            pose: {
+              position: { x: initStep.lng, y: initStep.lat, z: 0 },
+              orientation: quatFromYaw(yaw)
+            },
+            covariance: Array(36).fill(0)
+          }
+        });
+        initPubRef.current.publish(msg);
+        mapRef.current.dragging.enable();
+        mapRef.current.getContainer().style.cursor = '';
+        if (spriteRef.current) {
+          spriteRef.current.remove();
+          spriteRef.current = null;
         }
-      });
-      initPubRef.current.publish(msg);
-      setMode(null);
+        setInitStep(null);
+        setMode(null);
+      }
     } else if (mode === 'goal' && goalPubRef.current) {
       const yaw = parseFloat(prompt('Yaw (grados)', '0')) * Math.PI / 180 || 0;
       const msg = new ROSLIB.Message({
@@ -260,7 +306,6 @@ export default function Map() {
         <MapClickHandler />
       </MapContainer>
       <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center gap-2 pb-2">
-
         <button
           className={`btn ${mode === 'initial' ? 'bg-blue-500 text-white' : 'bg-white'}`}
           onClick={() => setMode(mode === 'initial' ? null : 'initial')}
