@@ -30,6 +30,7 @@ export default function Map() {
   const scanSubRef = useRef(null); // <-- NUEVO
   const [mode, setMode] = useState(null); // initial | goal | point
   const [initStep, setInitStep] = useState(null); // null | {lat, lng}
+  const [goalStep, setGoalStep] = useState(null); // null | {lat, lng}
   const { selectedMap, setPoints } = useData();
   const { token } = useAuth();
 
@@ -56,12 +57,12 @@ export default function Map() {
   useEffect(() => {
     if (!mapRef.current) return;
     const container = mapRef.current.getContainer();
-    if (mode === 'initial') {
+    if (mode === 'initial' || mode === 'goal') {
       container.style.cursor = 'crosshair';
-    } else if (!initStep) {
+    } else {
       container.style.cursor = '';
     }
-  }, [mode, initStep]);
+  }, [mode]);
 
   /* ───────── 1.  /tf  →  pose ─────────────────────────────────── */
   useEffect(() => {
@@ -198,7 +199,7 @@ export default function Map() {
     className: 'robot-sprite',
     iconSize: [20, 20],
     iconAnchor: [10, 10],
-    html: '<div></div>'
+    html: '<div class="robot-sprite-inner"></div>'
   });
 
   /* ───────── inicia mapa ───────────────────────────────────────── */
@@ -215,11 +216,14 @@ export default function Map() {
   }
 
   function onMouseMove(e) {
-    if (mode === 'initial' && initStep && spriteRef.current) {
+    if (spriteRef.current && (initStep || goalStep)) {
+      const ref = initStep || goalStep;
       const { lat, lng } = e.latlng;
-      const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
+      const yaw = Math.atan2(lat - ref.lat, lng - ref.lng);
       const el = spriteRef.current.getElement();
-      if (el) el.style.transform = `rotate(${-yaw}rad)`; // follow mouse
+      if (el && el.firstChild) {
+        el.firstChild.style.transform = `rotate(${-yaw}rad)`; // follow mouse
+      }
     }
   }
 
@@ -230,7 +234,6 @@ export default function Map() {
         setInitStep({ lat, lng });
         spriteRef.current = L.marker([lat, lng], { icon: robotIcon, interactive: false }).addTo(mapRef.current);
         mapRef.current.dragging.disable();
-        mapRef.current.getContainer().style.cursor = 'crosshair';
       } else {
         const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
         const msg = new ROSLIB.Message({
@@ -245,7 +248,7 @@ export default function Map() {
         });
         initPubRef.current.publish(msg);
         mapRef.current.dragging.enable();
-        mapRef.current.getContainer().style.cursor = '';
+        
         if (spriteRef.current) {
           spriteRef.current.remove();
           spriteRef.current = null;
@@ -254,16 +257,29 @@ export default function Map() {
         setMode(null);
       }
     } else if (mode === 'goal' && goalPubRef.current) {
-      const yaw = parseFloat(prompt('Yaw (grados)', '0')) * Math.PI / 180 || 0;
-      const msg = new ROSLIB.Message({
-        header: { frame_id: 'map' },
-        pose: {
-          position: { x: lng, y: lat, z: 0 },
-          orientation: quatFromYaw(yaw)
+
+      if (!goalStep) {
+        setGoalStep({ lat, lng });
+        spriteRef.current = L.marker([lat, lng], { icon: robotIcon, interactive: false }).addTo(mapRef.current);
+        mapRef.current.dragging.disable();
+      } else {
+        const yaw = Math.atan2(lat - goalStep.lat, lng - goalStep.lng);
+        const msg = new ROSLIB.Message({
+          header: { frame_id: 'map' },
+          pose: {
+            position: { x: goalStep.lng, y: goalStep.lat, z: 0 },
+            orientation: quatFromYaw(yaw)
+          }
+        });
+        goalPubRef.current.publish(msg);
+        mapRef.current.dragging.enable();
+        if (spriteRef.current) {
+          spriteRef.current.remove();
+          spriteRef.current = null;
         }
-      });
-      goalPubRef.current.publish(msg);
-      setMode(null);
+        setGoalStep(null);
+        setMode(null);
+      }
     } else if (mode === 'point' && selectedMap) {
       const name = prompt('Nombre del punto');
       if (!name) return;

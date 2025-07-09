@@ -6,9 +6,10 @@ El componente de mapa cuenta con tres botones en la parte inferior:
    El primer clic coloca un marcador cuadrado sobre el mapa.
    Mueva el puntero para orientar el marcador y haga clic de nuevo para fijar
    el ángulo y enviar la pose.
-
 2. **Objetivo**: al igual que el anterior, permite indicar una meta de navegación.
-   Tras presionar el botón, haga clic en el mapa y defina la orientación.
+   Tras presionar el botón, haga clic una vez para colocar el marcador,
+   mueva el puntero para elegir el ángulo y haga clic nuevamente para enviar
+   la meta.
 3. **Nuevo punto**: crea un punto de interés asociado al mapa activo.
    Al pulsar se pide un nombre y la orientación y se guarda a través de la API.
 
