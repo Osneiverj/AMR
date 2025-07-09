@@ -248,6 +248,7 @@ export default function Map() {
         });
         initPubRef.current.publish(msg);
         mapRef.current.dragging.enable();
+        
         if (spriteRef.current) {
           spriteRef.current.remove();
           spriteRef.current = null;
@@ -256,6 +257,7 @@ export default function Map() {
         setMode(null);
       }
     } else if (mode === 'goal' && goalPubRef.current) {
+
       if (!goalStep) {
         setGoalStep({ lat, lng });
         spriteRef.current = L.marker([lat, lng], { icon: robotIcon, interactive: false }).addTo(mapRef.current);
