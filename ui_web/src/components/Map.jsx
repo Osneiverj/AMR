@@ -30,6 +30,7 @@ export default function Map() {
   const scanSubRef = useRef(null); // <-- NUEVO
   const [mode, setMode] = useState(null); // initial | goal | point
   const [initStep, setInitStep] = useState(null); // null | {lat, lng}
+
   const { selectedMap, setPoints } = useData();
   const { token } = useAuth();
 
@@ -62,6 +63,7 @@ export default function Map() {
       container.style.cursor = '';
     }
   }, [mode, initStep]);
+
 
   /* ───────── 1.  /tf  →  pose ─────────────────────────────────── */
   useEffect(() => {
