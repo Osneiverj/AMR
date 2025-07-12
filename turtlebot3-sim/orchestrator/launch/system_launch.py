@@ -49,27 +49,15 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_slam'))
     )
 
-    # 3) Nav2 bringup (lifecycle, autostart=True)
+    # 3) Nav2 bringup (lifecycle, autostart handled by orchestrator)
     nav2 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_launch_file),
         launch_arguments={
-            'autostart': 'True',
+            'autostart': 'False',
             'use_sim_time': 'True',
             'map': LaunchConfiguration('map'),
             'params_file': LaunchConfiguration('params_file')
         }.items()
-    )
-
-    # 4) Map Server (lifecycle)
-    map_server_node = Node(
-        package='nav2_map_server',
-        executable='map_server',
-        name='map_server',
-        output='screen',
-        parameters=[{
-            'yaml_filename': LaunchConfiguration('map'),
-            'use_sim_time': True
-        }]
     )
 
     # 5) rosbridge_websocket (XML launch)
@@ -127,7 +115,6 @@ def generate_launch_description():
         gazebo,
         slam_toolbox,
         nav2,
-        map_server_node,
         rosbridge,
         TimerAction(period=1.0, actions=[_orchestrator_core_node])
     ])

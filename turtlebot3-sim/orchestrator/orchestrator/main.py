@@ -54,6 +54,9 @@ class Orchestrator(LifecycleNode):
             ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes", callback_group=self.cb_group
         )
 
+        # Arrancar la pila de navegación poco después de iniciar
+        self._startup_timer = self.create_timer(5.0, self._startup_nav2)
+
 
     # ---------------------- Helper methods ----------------------
     def _call_change_state(self, client, name: str, transition: int) -> bool:
@@ -160,6 +163,18 @@ class Orchestrator(LifecycleNode):
         rclpy.spin_until_future_complete(self, fut)
         res = fut.result()
         return bool(res and res.status)
+
+    def _startup_nav2(self):
+        """Launch Nav2 once services are available."""
+        self.get_logger().info("Starting Nav2 stack on startup")
+        ok = self._call_manage(
+            self.nav2_lifecycle_client,
+            "/lifecycle_manager_navigation/manage_nodes",
+            ManageLifecycleNodes.Request.STARTUP,
+        )
+        if not ok:
+            self.get_logger().error("Failed to start Nav2 stack on startup")
+        self._startup_timer.cancel()
 
     # ---------------------- SLAM / Nav2 control ----------------------
     def start_slam(self, request, response):
