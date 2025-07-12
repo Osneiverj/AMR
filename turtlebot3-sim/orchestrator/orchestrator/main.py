@@ -18,7 +18,11 @@ DEFAULT_MAP = "/root/maps/Turtle1.yaml"
 
 class Orchestrator(LifecycleNode):
     def __init__(self):
-        super().__init__("ui_orchestrator")
+        # Automatically declare parameters passed via CLI/launch, e.g. use_sim_time
+        super().__init__(
+            "ui_orchestrator",
+            automatically_declare_parameters_from_overrides=True,
+        )
 
         # Grupo reentrante para evitar deadlocks en callbacks anidados
         self.cb_group = ReentrantCallbackGroup()
