@@ -3,8 +3,10 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction, DeclareLaunchArgument
+
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
+
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 
@@ -16,6 +18,7 @@ def generate_launch_description():
     tb3_launch_file = os.path.join(nav2_bringup_pkg, 'launch', 'tb3_simulation_launch.py')
     rosbridge_launch_file = os.path.join(rosbridge_pkg, 'launch', 'rosbridge_websocket_launch.xml')
 
+
     tb3_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(tb3_launch_file),
         launch_arguments={
@@ -23,6 +26,7 @@ def generate_launch_description():
             'slam': 'False',
             'autostart': 'True',
             'map': LaunchConfiguration('map'),
+
             'params_file': LaunchConfiguration('params_file'),
             'world': LaunchConfiguration('world'),
             'use_rviz': 'False'
@@ -45,6 +49,7 @@ def generate_launch_description():
         'world',
         default_value=os.path.join(nav2_bringup_pkg, 'worlds', 'world_only.model'),
         description='Gazebo world file'
+
     )
 
     declare_map = DeclareLaunchArgument(
@@ -64,6 +69,7 @@ def generate_launch_description():
         declare_map,
         declare_params,
         tb3_sim,
+
         rosbridge,
         TimerAction(period=1.0, actions=[orchestrator]),
     ])
