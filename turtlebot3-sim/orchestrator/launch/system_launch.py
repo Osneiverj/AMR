@@ -15,17 +15,21 @@ def generate_launch_description():
     tb3_launch_file = os.path.join(nav2_bringup_pkg, 'launch', 'tb3_simulation_launch.py')
     rosbridge_launch_file = os.path.join(rosbridge_pkg, 'launch', 'rosbridge_websocket_launch.xml')
 
+
     tb3_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(tb3_launch_file),
         launch_arguments={
+
             'use_sim_time': 'True',
             'slam': 'False',
             'map': LaunchConfiguration('map'),
+
             'params_file': LaunchConfiguration('params_file'),
             'world': LaunchConfiguration('world'),
             'use_rviz': 'False'
         }.items(),
     )
+
 
     rosbridge = IncludeLaunchDescription(
         XMLLaunchDescriptionSource(rosbridge_launch_file),
@@ -62,6 +66,7 @@ def generate_launch_description():
         declare_map,
         declare_params,
         tb3_sim,
+
         rosbridge,
         TimerAction(period=1.0, actions=[orchestrator]),
     ])
