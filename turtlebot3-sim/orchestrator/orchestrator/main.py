@@ -11,6 +11,9 @@ from lifecycle_msgs.msg import Transition, State
 from slam_toolbox.srv import Clear, Pause
 from geometry_msgs.msg import PoseWithCovarianceStamped
 
+DEFAULT_MAP = "/root/maps/Turtle1.yaml"
+
+
 
 
 class Orchestrator(LifecycleNode):
@@ -171,6 +174,22 @@ class Orchestrator(LifecycleNode):
         res = fut.result()
         return bool(res and res.status)
 
+
+    def _load_default_map(self) -> bool:
+        """Load a predefined map using the map_server service."""
+        if not self.map_load_client.wait_for_service(timeout_sec=10.0):
+            self.get_logger().error("Service /map_server/load_map unavailable")
+            return False
+        req = LoadMap.Request(map_url=DEFAULT_MAP)
+        fut = self.map_load_client.call_async(req)
+        rclpy.spin_until_future_complete(self, fut)
+        res = fut.result()
+        if res and res.result == LoadMap.Response.RESULT_SUCCESS:
+            self.get_logger().info(f"Default map loaded: {DEFAULT_MAP}")
+            return True
+        self.get_logger().error(f"Failed to load map {DEFAULT_MAP}")
+        return False
+
     def _startup_nav2(self):
         """Launch Nav2 once services are available."""
         self.get_logger().info("Starting Nav2 stack on startup")
@@ -182,7 +201,10 @@ class Orchestrator(LifecycleNode):
         if not ok:
             self.get_logger().error("Failed to start Nav2 stack on startup")
         else:
-            # Publish initial pose shortly after Nav2 comes up
+
+            # Load default map and then publish initial pose
+            self._load_default_map()
+
             self._initial_pose_timer = self.create_timer(2.0, self._publish_initial_pose)
         self._startup_timer.cancel()
 
