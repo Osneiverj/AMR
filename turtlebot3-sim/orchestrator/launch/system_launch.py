@@ -42,7 +42,8 @@ def generate_launch_description():
         package='orchestrator',
         executable='orchestrator',
         name='ui_orchestrator',
-        output='screen'
+        output='screen',
+        parameters=[{'use_sim_time': True}]
     )
 
     declare_world = DeclareLaunchArgument(
