@@ -9,6 +9,9 @@ from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
 from lifecycle_msgs.srv import ChangeState, GetState
 from lifecycle_msgs.msg import Transition, State
 from slam_toolbox.srv import Clear, Pause
+from geometry_msgs.msg import PoseWithCovarianceStamped
+
+DEFAULT_MAP = "/root/maps/Turtle1.yaml"
 
 
 
@@ -53,6 +56,15 @@ class Orchestrator(LifecycleNode):
         self.nav2_lifecycle_client = self.create_client(
             ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes", callback_group=self.cb_group
         )
+
+        # Publisher to set initial pose for AMCL
+        self.initial_pose_pub = self.create_publisher(
+            PoseWithCovarianceStamped, "/initialpose", 10
+        )
+        self._initial_pose_timer = None
+
+        # Arrancar la pila de navegación poco después de iniciar
+        self._startup_timer = self.create_timer(5.0, self._startup_nav2)
 
 
     # ---------------------- Helper methods ----------------------
@@ -160,6 +172,50 @@ class Orchestrator(LifecycleNode):
         rclpy.spin_until_future_complete(self, fut)
         res = fut.result()
         return bool(res and res.status)
+
+    def _load_default_map(self) -> bool:
+        """Load a predefined map using the map_server service."""
+        if not self.map_load_client.wait_for_service(timeout_sec=10.0):
+            self.get_logger().error("Service /map_server/load_map unavailable")
+            return False
+        req = LoadMap.Request(map_url=DEFAULT_MAP)
+        fut = self.map_load_client.call_async(req)
+        rclpy.spin_until_future_complete(self, fut)
+        res = fut.result()
+        if res and res.result == LoadMap.Response.RESULT_SUCCESS:
+            self.get_logger().info(f"Default map loaded: {DEFAULT_MAP}")
+            return True
+        self.get_logger().error(f"Failed to load map {DEFAULT_MAP}")
+        return False
+
+    def _startup_nav2(self):
+        """Launch Nav2 once services are available."""
+        self.get_logger().info("Starting Nav2 stack on startup")
+        ok = self._call_manage(
+            self.nav2_lifecycle_client,
+            "/lifecycle_manager_navigation/manage_nodes",
+            ManageLifecycleNodes.Request.STARTUP,
+        )
+        if not ok:
+            self.get_logger().error("Failed to start Nav2 stack on startup")
+        else:
+            # Load default map and then publish initial pose
+            self._load_default_map()
+            self._initial_pose_timer = self.create_timer(2.0, self._publish_initial_pose)
+        self._startup_timer.cancel()
+
+    def _publish_initial_pose(self):
+        msg = PoseWithCovarianceStamped()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.frame_id = "map"
+        msg.pose.pose.position.x = 0.0
+        msg.pose.pose.position.y = 0.0
+        msg.pose.pose.position.z = 0.0
+        msg.pose.pose.orientation.w = 1.0
+        self.initial_pose_pub.publish(msg)
+        self.get_logger().info("Initial pose published at (0,0,0)")
+        if self._initial_pose_timer:
+            self._initial_pose_timer.cancel()
 
     # ---------------------- SLAM / Nav2 control ----------------------
     def start_slam(self, request, response):
