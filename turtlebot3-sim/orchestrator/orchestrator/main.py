@@ -2,6 +2,7 @@ import rclpy
 from rclpy.lifecycle import LifecycleNode
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.time import Time
 
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
@@ -214,7 +215,8 @@ class Orchestrator(LifecycleNode):
 
     def _publish_initial_pose(self):
         msg = PoseWithCovarianceStamped()
-        msg.header.stamp = self.get_clock().now().to_msg()
+        # Stamp at time=0 so AMCL uses latest TF transform
+        msg.header.stamp = Time().to_msg()
         msg.header.frame_id = "map"
         msg.pose.pose.position.x = 0.0
         msg.pose.pose.position.y = 0.0
