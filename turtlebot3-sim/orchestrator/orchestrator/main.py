@@ -54,6 +54,14 @@ class Orchestrator(LifecycleNode):
             ManageLifecycleNodes, "/lifecycle_manager_navigation/manage_nodes", callback_group=self.cb_group
         )
 
+        # Arrancar la pila de navegación nada más inicializar el nodo
+        self.get_logger().info("Starting Nav2 stack on startup")
+        self._call_manage(
+            self.nav2_lifecycle_client,
+            "/lifecycle_manager_navigation/manage_nodes",
+            ManageLifecycleNodes.Request.STARTUP,
+        )
+
 
     # ---------------------- Helper methods ----------------------
     def _call_change_state(self, client, name: str, transition: int) -> bool:
