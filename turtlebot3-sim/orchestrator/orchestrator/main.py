@@ -216,7 +216,8 @@ class Orchestrator(LifecycleNode):
     def _publish_initial_pose(self):
         msg = PoseWithCovarianceStamped()
         # Stamp at time=0 so AMCL uses latest TF transform
-        msg.header.stamp = Time().to_msg()
+        msg.header.stamp.sec = 0
+        msg.header.stamp.nanosec = 0
         msg.header.frame_id = "map"
         msg.pose.pose.position.x = 0.0
         msg.pose.pose.position.y = 0.0
