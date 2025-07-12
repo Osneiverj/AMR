@@ -15,6 +15,7 @@ DEFAULT_MAP = "/root/maps/Turtle1.yaml"
 
 
 
+
 class Orchestrator(LifecycleNode):
     def __init__(self):
         super().__init__("ui_orchestrator")
@@ -173,6 +174,7 @@ class Orchestrator(LifecycleNode):
         res = fut.result()
         return bool(res and res.status)
 
+
     def _load_default_map(self) -> bool:
         """Load a predefined map using the map_server service."""
         if not self.map_load_client.wait_for_service(timeout_sec=10.0):
@@ -199,8 +201,10 @@ class Orchestrator(LifecycleNode):
         if not ok:
             self.get_logger().error("Failed to start Nav2 stack on startup")
         else:
+
             # Load default map and then publish initial pose
             self._load_default_map()
+
             self._initial_pose_timer = self.create_timer(2.0, self._publish_initial_pose)
         self._startup_timer.cancel()
 
