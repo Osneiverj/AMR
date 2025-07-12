@@ -237,7 +237,7 @@ export default function Map() {
       } else {
         const yaw = Math.atan2(lat - initStep.lat, lng - initStep.lng);
         const msg = new ROSLIB.Message({
-          header: { frame_id: 'map' },
+          header: { frame_id: 'map', stamp: { sec: 0, nanosec: 0 } },
           pose: {
             pose: {
               position: { x: initStep.lng, y: initStep.lat, z: 0 },
