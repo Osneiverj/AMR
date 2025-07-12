@@ -2,6 +2,7 @@ import rclpy
 from rclpy.lifecycle import LifecycleNode
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
+from rclpy.time import Time
 
 from std_srvs.srv import Empty
 from nav2_msgs.srv import LoadMap, ManageLifecycleNodes
@@ -18,7 +19,11 @@ DEFAULT_MAP = "/root/maps/Turtle1.yaml"
 
 class Orchestrator(LifecycleNode):
     def __init__(self):
-        super().__init__("ui_orchestrator")
+        # Automatically declare parameters passed via CLI/launch, e.g. use_sim_time
+        super().__init__(
+            "ui_orchestrator",
+            automatically_declare_parameters_from_overrides=True,
+        )
 
         # Grupo reentrante para evitar deadlocks en callbacks anidados
         self.cb_group = ReentrantCallbackGroup()
@@ -210,7 +215,9 @@ class Orchestrator(LifecycleNode):
 
     def _publish_initial_pose(self):
         msg = PoseWithCovarianceStamped()
-        msg.header.stamp = self.get_clock().now().to_msg()
+        # Stamp at time=0 so AMCL uses latest TF transform
+        msg.header.stamp.sec = 0
+        msg.header.stamp.nanosec = 0
         msg.header.frame_id = "map"
         msg.pose.pose.position.x = 0.0
         msg.pose.pose.position.y = 0.0
