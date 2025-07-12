@@ -210,7 +210,10 @@ class Orchestrator(LifecycleNode):
             # Load default map and then publish initial pose
             self._load_default_map()
 
-            self._initial_pose_timer = self.create_timer(2.0, self._publish_initial_pose)
+            # Nav2 puede tardar varios segundos en inicializar AMCL.
+            # Retrasar un poco más la publicación de la pose inicial evita que
+            # el mensaje se pierda antes de que el nodo esté activo.
+            self._initial_pose_timer = self.create_timer(5.0, self._publish_initial_pose)
         self._startup_timer.cancel()
 
     def _publish_initial_pose(self):
@@ -222,6 +225,9 @@ class Orchestrator(LifecycleNode):
         msg.pose.pose.position.x = 0.0
         msg.pose.pose.position.y = 0.0
         msg.pose.pose.position.z = 0.0
+        msg.pose.pose.orientation.x = 0.0
+        msg.pose.pose.orientation.y = 0.0
+        msg.pose.pose.orientation.z = 0.0
         msg.pose.pose.orientation.w = 1.0
         self.initial_pose_pub.publish(msg)
         self.get_logger().info("Initial pose published at (0,0,0)")
