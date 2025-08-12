@@ -1,0 +1,126 @@
+== ENV ==
+ROS_LOG_DIR=/root/maps/ros_logs
+TURTLEBOT3_MODEL=burger
+ROS_DOMAIN_ID=30
+CMD: ros2 launch orchestrator system_launch.py
+============
+[INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-11-21-58-34-226359-e263e4e0e2cb-25
+[INFO] [launch]: Default logging verbosity is set to INFO
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''
+== ENV ==
+ROS_LOG_DIR=/root/maps/ros_logs
+TURTLEBOT3_MODEL=burger
+ROS_DOMAIN_ID=30
+CMD: ros2 launch orchestrator system_launch.py
+============
+[INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-11-22-03-08-157833-99e05db05207-25
+[INFO] [launch]: Default logging verbosity is set to INFO
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''
+== ENV ==
+ROS_LOG_DIR=/root/maps/ros_logs
+TURTLEBOT3_MODEL=burger
+ROS_DOMAIN_ID=30
+CMD: ros2 launch orchestrator system_launch.py
+============
+[INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-11-22-12-01-864760-503d510edb90-25
+[INFO] [launch]: Default logging verbosity is set to INFO
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''
+== ENV ==
+ROS_LOG_DIR=/root/maps/ros_logs
+TURTLEBOT3_MODEL=burger
+ROS_DOMAIN_ID=30
+CMD: ros2 launch orchestrator system_launch.py
+============
+[INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-15-46-27-593945-69c191c0506a-25
+[INFO] [launch]: Default logging verbosity is set to INFO
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''
+== ENV ==
+ROS_LOG_DIR=/root/maps/ros_logs
+TURTLEBOT3_MODEL=burger
+ROS_DOMAIN_ID=30
+CMD: ros2 launch orchestrator system_launch.py
+============
+[INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-16-23-08-612288-8fdf8a1e5f1b-25
+[INFO] [launch]: Default logging verbosity is set to INFO
+[system_launch] orchestrator_dir: /ros2_ws/install/share/orchestrator
+[system_launch] map_file: /root/maps/turtle.yaml (exists=True)
+[system_launch] robot.launch.py: /ros2_ws/install/share/orchestrator/launch/robot.launch.py (exists=True)
+[system_launch] nav2.launch.py: /ros2_ws/install/share/orchestrator/launch/nav2.launch.py (exists=True)
+[sim.launch] turtlebot3_gazebo share: /opt/ros/humble/share/turtlebot3_gazebo (exists=True)
+[sim.launch] Worlds dir: /opt/ros/humble/share/turtlebot3_gazebo/worlds (exists=True)
+[sim.launch] Selected world: /opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world (exists=True)
+[sim.launch] TURTLEBOT3_MODEL: burger
+[sim.launch] URDF path: /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf (exists=True)
+[sim.launch] GUI flag: false (TB3_SIM_GUI=false)
+[sim.launch] gazebo_ros launch: /opt/ros/humble/share/gazebo_ros/launch/gazebo.launch.py (exists=True)
+[sim.launch] gazebo launch args: {'verbose': 'true', 'gui': 'false', 'world': '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'}
+[nav2.launch] nav2_params_default: /opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml (exists=True)
+[nav2.launch] bringup_launch.py: /opt/ros/humble/share/nav2_bringup/launch/bringup_launch.py (exists=True)
+[nav2.launch] default_map: /root/maps/turtle.yaml (exists=True)
+[nav2.launch] slam_default: False
+[sim.launch] turtlebot3_gazebo share: /opt/ros/humble/share/turtlebot3_gazebo (exists=True)
+[sim.launch] Worlds dir: /opt/ros/humble/share/turtlebot3_gazebo/worlds (exists=True)
+[sim.launch] Selected world: /opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world (exists=True)
+[sim.launch] TURTLEBOT3_MODEL: burger
+[sim.launch] URDF path: /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf (exists=True)
+[sim.launch] GUI flag: false (TB3_SIM_GUI=false)
+[sim.launch] gazebo_ros launch: /opt/ros/humble/share/gazebo_ros/launch/gazebo.launch.py (exists=True)
+[sim.launch] gazebo launch args: {'verbose': 'true', 'gui': 'false', 'world': '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'}
+[sim.launch] turtlebot3_gazebo share: /opt/ros/humble/share/turtlebot3_gazebo (exists=True)
+[sim.launch] Worlds dir: /opt/ros/humble/share/turtlebot3_gazebo/worlds (exists=True)
+[sim.launch] Selected world: /opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world (exists=True)
+[sim.launch] TURTLEBOT3_MODEL: burger
+[sim.launch] URDF path: /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf (exists=True)
+[sim.launch] GUI flag: false (TB3_SIM_GUI=false)
+[sim.launch] gazebo_ros launch: /opt/ros/humble/share/gazebo_ros/launch/gazebo.launch.py (exists=True)
+[sim.launch] gazebo launch args: {'verbose': 'true', 'gui': 'false', 'world': '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'}
+[nav2.launch] nav2_params_default: /opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml (exists=True)
+[nav2.launch] bringup_launch.py: /opt/ros/humble/share/nav2_bringup/launch/bringup_launch.py (exists=True)
+[nav2.launch] default_map: /root/maps/turtle.yaml (exists=True)
+[nav2.launch] slam_default: False
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''
+== ENV ==
+ROS_LOG_DIR=/root/maps/ros_logs
+TURTLEBOT3_MODEL=burger
+ROS_DOMAIN_ID=30
+CMD: ros2 launch orchestrator system_launch.py
+============
+[INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-16-42-05-753377-8fdf8a1e5f1b-25
+[INFO] [launch]: Default logging verbosity is set to INFO
+[system_launch] orchestrator_dir: /ros2_ws/install/share/orchestrator
+[system_launch] map_file: /root/maps/turtle.yaml (exists=True)
+[system_launch] robot.launch.py: /ros2_ws/install/share/orchestrator/launch/robot.launch.py (exists=True)
+[system_launch] nav2.launch.py: /ros2_ws/install/share/orchestrator/launch/nav2.launch.py (exists=True)
+[sim.launch] turtlebot3_gazebo share: /opt/ros/humble/share/turtlebot3_gazebo (exists=True)
+[sim.launch] Worlds dir: /opt/ros/humble/share/turtlebot3_gazebo/worlds (exists=True)
+[sim.launch] Selected world: /opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world (exists=True)
+[sim.launch] TURTLEBOT3_MODEL: burger
+[sim.launch] URDF path: /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf (exists=True)
+[sim.launch] GUI flag: false (TB3_SIM_GUI=false)
+[sim.launch] gazebo_ros launch: /opt/ros/humble/share/gazebo_ros/launch/gazebo.launch.py (exists=True)
+[sim.launch] gazebo launch args: {'verbose': 'true', 'gui': 'false', 'world': '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'}
+[nav2.launch] nav2_params_default: /opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml (exists=True)
+[nav2.launch] bringup_launch.py: /opt/ros/humble/share/nav2_bringup/launch/bringup_launch.py (exists=True)
+[nav2.launch] default_map: /root/maps/turtle.yaml (exists=True)
+[nav2.launch] slam_default: False
+[sim.launch] turtlebot3_gazebo share: /opt/ros/humble/share/turtlebot3_gazebo (exists=True)
+[sim.launch] Worlds dir: /opt/ros/humble/share/turtlebot3_gazebo/worlds (exists=True)
+[sim.launch] Selected world: /opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world (exists=True)
+[sim.launch] TURTLEBOT3_MODEL: burger
+[sim.launch] URDF path: /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf (exists=True)
+[sim.launch] GUI flag: false (TB3_SIM_GUI=false)
+[sim.launch] gazebo_ros launch: /opt/ros/humble/share/gazebo_ros/launch/gazebo.launch.py (exists=True)
+[sim.launch] gazebo launch args: {'verbose': 'true', 'gui': 'false', 'world': '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'}
+[sim.launch] turtlebot3_gazebo share: /opt/ros/humble/share/turtlebot3_gazebo (exists=True)
+[sim.launch] Worlds dir: /opt/ros/humble/share/turtlebot3_gazebo/worlds (exists=True)
+[sim.launch] Selected world: /opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world (exists=True)
+[sim.launch] TURTLEBOT3_MODEL: burger
+[sim.launch] URDF path: /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf (exists=True)
+[sim.launch] GUI flag: false (TB3_SIM_GUI=false)
+[sim.launch] gazebo_ros launch: /opt/ros/humble/share/gazebo_ros/launch/gazebo.launch.py (exists=True)
+[sim.launch] gazebo launch args: {'verbose': 'true', 'gui': 'false', 'world': '/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world'}
+[nav2.launch] nav2_params_default: /opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml (exists=True)
+[nav2.launch] bringup_launch.py: /opt/ros/humble/share/nav2_bringup/launch/bringup_launch.py (exists=True)
+[nav2.launch] default_map: /root/maps/turtle.yaml (exists=True)
+[nav2.launch] slam_default: False
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''

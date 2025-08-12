@@ -1,4 +1,4 @@
-string mission_json
+string mission_definition
 ---
 bool success
 string message

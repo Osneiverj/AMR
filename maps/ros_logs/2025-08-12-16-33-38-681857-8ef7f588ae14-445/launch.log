@@ -1,0 +1,160 @@
+1755016418.6866791 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.IncludeLaunchDescription'
+1755016418.6878743 [INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-16-33-38-681857-8ef7f588ae14-445
+1755016418.6883988 [INFO] [launch]: Default logging verbosity is set to DEBUG
+1755016418.6925502 [DEBUG] [launch]: processing event: '<launch.events.include_launch_description.IncludeLaunchDescription object at 0x7fb8406ee530>'
+1755016418.6933146 [DEBUG] [launch]: processing event: '<launch.events.include_launch_description.IncludeLaunchDescription object at 0x7fb8406ee530>' ✓ '<launch.event_handlers.on_include_launch_description.OnIncludeLaunchDescription object at 0x7fb8406ef0d0>'
+1755016418.7280843 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7289326 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7295485 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7301188 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7582245 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7587492 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7593288 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7598336 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7641518 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7645926 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7650547 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7654650 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7661180 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7665946 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016418.7670457 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755016418.7675128 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755016419.1235745 [DEBUG] [launch]: An exception was raised in an async action/event
+1755016419.1247671 [DEBUG] [launch]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_service.py", line 336, in run_async
+    raise completed_tasks_exceptions[0]
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_service.py", line 230, in _process_one_event
+    await self.__process_event(next_event)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_service.py", line 250, in __process_event
+    visit_all_entities_and_collect_futures(entity, self.__context))
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/visit_all_entities_and_collect_futures_impl.py", line 45, in visit_all_entities_and_collect_futures
+    futures_to_return += visit_all_entities_and_collect_futures(sub_entity, context)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/visit_all_entities_and_collect_futures_impl.py", line 45, in visit_all_entities_and_collect_futures
+    futures_to_return += visit_all_entities_and_collect_futures(sub_entity, context)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/visit_all_entities_and_collect_futures_impl.py", line 45, in visit_all_entities_and_collect_futures
+    futures_to_return += visit_all_entities_and_collect_futures(sub_entity, context)
+  [Previous line repeated 6 more times]
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/visit_all_entities_and_collect_futures_impl.py", line 38, in visit_all_entities_and_collect_futures
+    sub_entities = entity.visit(context)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/action.py", line 108, in visit
+    return self.execute(context)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch_ros/actions/node.py", line 490, in execute
+    self._perform_substitutions(context)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch_ros/actions/node.py", line 445, in _perform_substitutions
+    evaluated_parameters = evaluate_parameters(context, self.__parameters)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch_ros/utilities/evaluate_parameters.py", line 159, in evaluate_parameters
+    output_params.append(param.evaluate(context))
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch_ros/parameter_descriptions.py", line 235, in evaluate
+    param_file = perform_substitutions(context, self.__param_file)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/nav2_common/launch/rewritten_yaml.py", line 88, in perform
+    data = yaml.safe_load(open(yaml_filename, 'r'))
+FileNotFoundError: [Errno 2] No such file or directory: ''
+
+1755016419.1254146 [ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''
+1755016419.1259942 [DEBUG] [launch.launch_context]: emitting event: 'launch.events.Shutdown'
+1755016419.1268983 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fb8406ef3d0>'
+1755016419.1273584 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fb8406ef3d0>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7fb83fa1a1a0>'
+1755016419.1278636 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fb8406ef3d0>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7fb83f87e140>'
+1755016419.1283252 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fb8406ef3d0>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7fb8406eec20>'

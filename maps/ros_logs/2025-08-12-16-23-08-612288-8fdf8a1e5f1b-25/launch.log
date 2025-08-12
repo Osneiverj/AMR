@@ -1,0 +1,3 @@
+1755015788.6181197 [INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-16-23-08-612288-8fdf8a1e5f1b-25
+1755015788.6188231 [INFO] [launch]: Default logging verbosity is set to INFO
+1755015789.2616782 [ERROR] [launch]: Caught exception in launch (see debug for traceback): [Errno 2] No such file or directory: ''

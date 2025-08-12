@@ -1,0 +1,6 @@
+[INFO] [1755016460.474577039] [spawn_entity]: Spawn Entity started
+[INFO] [1755016460.475423795] [spawn_entity]: Loading entity XML from file /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf
+[INFO] [1755016460.478673103] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[INFO] [1755016460.479016129] [spawn_entity]: Waiting for service /spawn_entity
+[ERROR] [1755016490.542112472] [spawn_entity]: Service /spawn_entity unavailable. Was Gazebo started with GazeboRosFactory?
+[ERROR] [1755016490.542467592] [spawn_entity]: Spawn service failed. Exiting.

@@ -7,7 +7,18 @@ function authHeaders() {
 
 export async function get(path) {
   const res = await fetch(`${base}${path}`, { headers: authHeaders() });
-  if (!res.ok) throw new Error(res.statusText);
+  if (!res.ok) {
+    let errorDetail = res.statusText;
+    try {
+      const errorBody = await res.json();
+      if (errorBody.detail) {
+        errorDetail = errorBody.detail;
+      }
+    } catch (e) {
+      // Ignore if the body is not JSON or empty
+    }
+    throw new Error(errorDetail);
+  }
   return res.json();
 }
 
@@ -17,6 +28,17 @@ export async function post(path, data) {
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(data)
   });
-  if (!res.ok) throw new Error(res.statusText);
+  if (!res.ok) {
+    let errorDetail = res.statusText;
+    try {
+      const errorBody = await res.json();
+      if (errorBody.detail) {
+        errorDetail = errorBody.detail;
+      }
+    } catch (e) {
+      // Ignore if the body is not JSON or empty
+    }
+    throw new Error(errorDetail);
+  }
   return res.json();
 }

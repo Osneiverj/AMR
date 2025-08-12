@@ -1,0 +1,223 @@
+1755017340.6562908 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.IncludeLaunchDescription'
+1755017340.6574545 [INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-16-49-00-651359-8ef7f588ae14-946
+1755017340.6579289 [INFO] [launch]: Default logging verbosity is set to DEBUG
+1755017340.6608729 [DEBUG] [launch]: processing event: '<launch.events.include_launch_description.IncludeLaunchDescription object at 0x7fac19a965f0>'
+1755017340.6614642 [DEBUG] [launch]: processing event: '<launch.events.include_launch_description.IncludeLaunchDescription object at 0x7fac19a965f0>' ✓ '<launch.event_handlers.on_include_launch_description.OnIncludeLaunchDescription object at 0x7fac19a96590>'
+1755017340.7198794 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7206011 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7214549 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7220688 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7317340 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7324319 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7330360 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7334878 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7378409 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7385983 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7393022 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7398136 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7407012 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7411602 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017340.7417600 [DEBUG] [launch.launch_description_source]: Traceback (most recent call last):
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_description_source.py", line 68, in try_get_launch_description_without_context
+    perform_substitutions(context, self.__location)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in perform_substitutions
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/utilities/perform_substitutions_impl.py", line 26, in <listcomp>
+    return ''.join([context.perform_substitution(sub) for sub in subs])
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/launch_context.py", line 240, in perform_substitution
+    return substitution.perform(self)
+  File "/opt/ros/humble/lib/python3.10/site-packages/launch/substitutions/this_launch_file_dir.py", line 56, in perform
+    raise SubstitutionFailure(
+launch.substitutions.substitution_failure.SubstitutionFailure: ThisLaunchFileDir used outside of a launch file (in a script)
+
+1755017340.7422001 [DEBUG] [launch.launch_description_source]: Failed to load the launch file without a context: ThisLaunchFileDir used outside of a launch file (in a script)
+1755017341.2040915 [INFO] [gzserver-1]: process started with pid [947]
+1755017341.2049775 [DEBUG] [launch.launch_context]: emitting event: 'launch.events.process.ProcessStarted'
+1755017341.2060356 [INFO] [spawn_entity.py-2]: process started with pid [949]
+1755017341.2069693 [DEBUG] [launch.launch_context]: emitting event: 'launch.events.process.ProcessStarted'
+1755017341.2075734 [DEBUG] [launch]: processing event: '<launch.events.process.process_started.ProcessStarted object at 0x7fac18f6f730>'
+1755017341.2087159 [DEBUG] [launch]: processing event: '<launch.events.process.process_started.ProcessStarted object at 0x7fac18bf7220>'
+1755017341.5368903 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017341.5381086 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>'
+1755017341.5390208 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18f6f8e0>'
+1755017341.5402815 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017341.5414495 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>'
+1755017341.5421820 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18f6f8e0>'
+1755017341.5431802 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017341.5442457 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>'
+1755017341.5450923 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18f6f8e0>'
+1755017341.7834718 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017341.7842550 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>'
+1755017341.7848914 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017341.7855682 [gzserver-1] Gazebo multi-robot simulator, version 11.10.2
+1755017341.7861271 [gzserver-1] Copyright (C) 2012 Open Source Robotics Foundation.
+1755017341.7866704 [gzserver-1] Released under the Apache 2 License.
+1755017341.7872205 [gzserver-1] http://gazebosim.org
+1755017341.7877440 [gzserver-1] 
+1755017341.9700391 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017341.9713295 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>'
+1755017341.9720912 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18f6f730>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017341.9727416 [gzserver-1] [1;33m[Wrn] [gazebo_ros_init.cpp:178] [0m[1;33m
+1755017341.9733286 [gzserver-1] #     # ####### ####### ###  #####  #######
+1755017341.9741380 [gzserver-1] ##    # #     #    #     #  #     # #
+1755017341.9747610 [gzserver-1] # #   # #     #    #     #  #       #
+1755017341.9753172 [gzserver-1] #  #  # #     #    #     #  #       #####
+1755017341.9759064 [gzserver-1] #   # # #     #    #     #  #       #
+1755017341.9765258 [gzserver-1] #    ## #     #    #     #  #     # #
+1755017341.9771659 [gzserver-1] #     # #######    #    ###  #####  #######
+1755017341.9777565 [gzserver-1] 
+1755017341.9782984 [gzserver-1] This version of Gazebo, now called Gazebo classic, reaches end-of-life
+1755017341.9788570 [gzserver-1] in January 2025. Users are highly encouraged to migrate to the new Gazebo
+1755017341.9794137 [gzserver-1] using our migration guides (https://gazebosim.org/docs/latest/gazebo_classic_migration?utm_source=gazebo_ros_pkgs&utm_medium=cli)
+1755017341.9800010 [gzserver-1] 
+1755017341.9805927 [gzserver-1] [0m[1;33m
+1755017342.0210245 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStdout'
+1755017342.0218301 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017342.0226090 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18f6f730>'
+1755017342.0232263 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18f6f730>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017342.0238318 [gzserver-1] [1;32m[Msg] [0m[1;32mWaiting for master.[0m[1;32m
+1755017342.0243428 [gzserver-1] [0m[1;32m[0m[1;32m[0m[1;32m[Msg] [0m[1;32mConnected to gazebo master @ [0m[1;32mhttp://127.0.0.1:11345[0m[1;32m
+1755017342.0249040 [gzserver-1] [0m[1;32m[0m[1;32m[0m[1;32m[Msg] [0m[1;32mPublicized address: [0m[1;32m172.18.0.2[0m[1;32m
+1755017342.0258300 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017342.0268745 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bf7070>'
+1755017342.0275011 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bf7070>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017342.0283723 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bf6e60>'
+1755017342.0288777 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bf6e60>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017342.0293727 [gzserver-1] [0m[1;33m[0m[1;33m[0m[1;31m[Err] [RenderEngine.cc:749] [0m[1;31mCan't open display: [0m[1;31m[0m[1;31m
+1755017342.0298095 [gzserver-1] [0m[1;33m[Wrn] [RenderEngine.cc:89] [0m[1;33mUnable to create X window. Rendering will be disabled
+1755017342.0302370 [gzserver-1] [0m[1;33m[Wrn] [RenderEngine.cc:292] [0m[1;33mCannot initialize render engine since [0m[1;33mrender path type is NONE. Ignore this warning if[0m[1;33mrendering has been turned off on purpose.
+1755017342.2258065 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017342.2271895 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bf6e60>'
+1755017342.2280469 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bf6e60>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017342.2289610 [gzserver-1] [0mALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+1755017342.2297740 [gzserver-1] ALSA lib conf.c:5178:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+1755017342.2305534 [gzserver-1] ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+1755017342.2313094 [gzserver-1] ALSA lib conf.c:5178:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+1755017342.2321868 [gzserver-1] ALSA lib confmisc.c:1334:(snd_func_refer) error evaluating name
+1755017342.2329364 [gzserver-1] ALSA lib conf.c:5178:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+1755017342.2338374 [gzserver-1] ALSA lib conf.c:5701:(snd_config_expand) Evaluate error: No such file or directory
+1755017342.2349155 [gzserver-1] ALSA lib pcm.c:2664:(snd_pcm_open_noupdate) Unknown PCM default
+1755017342.2358093 [gzserver-1] AL lib: (EE) ALCplaybackAlsa_open: Could not open playback device 'default': No such file or directory
+1755017342.2364917 [gzserver-1] [1;31m[Err] [OpenAL.cc:84] [0m[1;31mUnable to open audio device[[0m[1;31mdefault[0m[1;31m]
+1755017342.2371542 [gzserver-1]  Audio will be disabled.
+1755017342.2379756 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStdout'
+1755017342.2399328 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18bf6e60>'
+1755017342.2413678 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18bf6e60>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017342.2421107 [gzserver-1] [0m[1;32m[0m[1;32m[0m[1;32m[Msg] [0m[1;32mLoading world file [[0m[1;32m/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world[0m[1;32m][0m[1;32m
+1755017342.3102853 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017342.3116879 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>'
+1755017342.3128135 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18f6f8e0>'
+1755017342.4420760 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017342.4435494 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>'
+1755017342.4445257 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18f6f8e0>'
+1755017342.5845540 [INFO] [spawn_entity.py-2]: process has finished cleanly [pid 949]
+1755017342.5854189 [DEBUG] [launch.launch_context]: emitting event: 'launch.events.process.ProcessExited'
+1755017342.5861952 [DEBUG] [launch]: processing event: '<launch.events.process.process_exited.ProcessExited object at 0x7fac18bd3700>'
+1755017342.5867946 [DEBUG] [launch]: processing event: '<launch.events.process.process_exited.ProcessExited object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_exit.OnProcessExit object at 0x7fac18bf71f0>'
+1755017342.5874119 [DEBUG] [launch]: processing event: '<launch.events.process.process_exited.ProcessExited object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_exit.OnProcessExit object at 0x7fac18f6f9d0>'
+1755017413.4657588 [WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+1755017413.4668932 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.Shutdown'
+1755017413.4684162 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fac18bf7070>'
+1755017413.4694595 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fac18bf7070>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7fac18f6fa90>'
+1755017413.4704783 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fac18bf7070>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7fac18bfd0c0>'
+1755017413.4734595 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7fac18bf7070>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7fac19a96ce0>'
+1755017413.6374292 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStderr'
+1755017413.6385849 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>'
+1755017413.6392679 [DEBUG] [launch]: processing event: '<launch.events.process.process_stderr.ProcessStderr object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017413.6401772 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStdout'
+1755017413.6411307 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18bd3700>'
+1755017413.6417267 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18bd3700>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017413.6662209 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.process.ProcessStdout'
+1755017413.6671476 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18bf6f50>'
+1755017413.6678584 [DEBUG] [launch]: processing event: '<launch.events.process.process_stdout.ProcessStdout object at 0x7fac18bf6f50>' ✓ '<launch.event_handlers.on_process_io.OnProcessIO object at 0x7fac18bfcf10>'
+1755017413.6750476 [INFO] [gzserver-1]: process has finished cleanly [pid 947]
+1755017413.6757193 [DEBUG] [launch.launch_context]: emitting event: 'launch.events.process.ProcessExited'
+1755017413.6765378 [DEBUG] [launch]: processing event: '<launch.events.process.process_exited.ProcessExited object at 0x7fac18bf6f50>'
+1755017413.6771948 [DEBUG] [launch]: processing event: '<launch.events.process.process_exited.ProcessExited object at 0x7fac18bf6f50>' ✓ '<launch.event_handlers.on_process_exit.OnProcessExit object at 0x7fac18bfcfd0>'
+1755017413.6776915 [gzserver-1] [0m[1;32m[0m[1;32m[0m[1;36m[0m[1;32m[0m
+1755017413.6782389 [gzserver-1] [0m[1;33m[0m[1;31m[0m
+1755017413.6788623 [DEBUG] [launch]: processing event: '<launch.events.process.process_exited.ProcessExited object at 0x7fac18bf6f50>' ✓ '<launch.event_handlers.on_process_exit.OnProcessExit object at 0x7fac18bfd180>'

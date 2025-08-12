@@ -7,4 +7,4 @@ services:
       - /run/desktop/mnt/host/wslg:/mnt/wslg
       - ./orchestrator:/ros2_ws/src/orchestrator
     entrypoint: /bin/bash
-    command: -c "colcon build --merge-install && exec /entrypoint.sh"
+    command: ["-c", "sleep infinity"]

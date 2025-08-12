@@ -33,6 +33,7 @@ async def create(data: dict) -> Mission:
 
 from app.core.ros import get_ros_client
 import roslibpy
+import roslibpy.actionlib
 import json
 
 async def run_mission(mission_id: PydanticObjectId) -> dict:
@@ -44,12 +45,12 @@ async def run_mission(mission_id: PydanticObjectId) -> dict:
     if not ros_client.is_connected:
         raise ConnectionError("No se pudo conectar con el orquestador de ROS.")
 
-    action_client = roslibpy.ActionClient(ros_client,
-                                          '/execute_mission',
-                                          'orchestrator/ExecuteMission')
+    action_client = roslibpy.actionlib.ActionClient(ros_client,
+                                          'execute_mission',
+                                          'orchestrator/action/ExecuteMission')
 
     goal = roslibpy.Goal(action_client, roslibpy.Message({
-        'mission_json': json.dumps(mission.definition)
+        'mission_definition': json.dumps(mission.definition)
     }))
 
     # No bloquearemos la API esperando el resultado, solo enviamos el objetivo.
@@ -67,6 +68,8 @@ async def list_all(map_id: str | None = None) -> List[Mission]: # Pydantic v1 co
         return await Mission.find(Mission.map_id == map_id).to_list()
     return await Mission.find_all().to_list()
 
+async def get_by_id(mission_id: PydanticObjectId) -> Mission | None:
+    return await Mission.get(mission_id)
 
 # ------------------------------------------------------------------
 # DELETE

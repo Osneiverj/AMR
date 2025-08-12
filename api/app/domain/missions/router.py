@@ -1,7 +1,7 @@
 # api/app/domain/missions/router.py
 from fastapi import APIRouter, HTTPException, Depends
 from beanie import PydanticObjectId
-from .service import create, list_all, remove
+from .service import create, list_all, remove, get_by_id
 from .model import Mission  # Sigue siendo necesario para el response_model
 from .schemas import MissionCreate
 from app.domain.users.service import get_current_active_user, require_admin  # <-- IMPORTA EL NUEVO ESQUEMA
@@ -23,6 +23,13 @@ async def run_mission_endpoint(mid: PydanticObjectId, current_user = Depends(req
 async def get_missions(map_id: str | None = None, current_user = Depends(get_current_active_user)): # Pydantic v1 compatible
     return await list_all(map_id)
 
+@router.get("/{mid}", response_model=Mission)
+async def get_mission(mid: PydanticObjectId, current_user = Depends(get_current_active_user)):
+    mission = await get_by_id(mid)
+    if not mission:
+        raise HTTPException(status_code=404, detail="Mission not found")
+    return mission
+
 @router.post("/", response_model=Mission, status_code=201)
 async def new_mission(
     mission_data: MissionCreate,
@@ -32,8 +39,8 @@ async def new_mission(
         # El servicio ahora recibirá un diccionario validado de mission_data
         return await create(mission_data.dict(exclude_none=True))
     except ValueError as e:
-        # Errores de validación del servicio (mapa/puntos inexistentes)
-        raise HTTPException(status_code=400, detail=str(e))
+        # Errores de validación del servicio (mapa/puntos inexistentes o definición inválida)
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         # Otros errores inesperados
         raise HTTPException(status_code=500, detail="Error interno al crear la misión.")

@@ -1,14 +1,34 @@
 #!/bin/bash
-set -e
+# Avoid -u while sourcing ROS setup (COLCON_* may be unset)
+set -eo pipefail
 
-echo "--- [DEBUG] Entrypoint iniciado. ---"
-
-# 1) Cargar entornos ROS 2
-source /opt/ros/humble/setup.bash
+# Carga el entorno de ROS 2
 source /ros2_ws/install/setup.bash
+# Now enable -u for the rest of the script
+set -u
 
-# 2) Lanzar todo el sistema con un único launch file desde el paquete ROS 2
-echo "--- [DEBUG] Lanzando orchestrator/system_launch.py (todo el stack) ---"
-ros2 launch orchestrator system_launch.py
+# Preparar logging persistente hacia el volumen mapeado
+ROS_LOG_DIR="${ROS_LOG_DIR:-/root/.ros/log}"
+mkdir -p "$ROS_LOG_DIR" /root/maps
+OUT_LOG="/root/maps/launch_stdout.log"
 
-# (No hace falta lanzar nodos individuales ni sleeps)
+{
+  echo "== ENV =="
+  echo "ROS_LOG_DIR=$ROS_LOG_DIR"
+  echo "TURTLEBOT3_MODEL=${TURTLEBOT3_MODEL:-}" 
+  echo "ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-}"
+  echo "CMD: $*"
+  echo "============"
+} | tee -a "$OUT_LOG"
+
+# Ejecuta el comando y multiplica salida a archivo en /root/maps
+"$@" 2>&1 | tee -a "$OUT_LOG"
+status=${PIPESTATUS[0]}
+
+{
+  echo "== LAUNCH EXIT == code=$status"
+  echo "Logs en: $ROS_LOG_DIR"
+  ls -l "$ROS_LOG_DIR" || true
+} | tee -a "$OUT_LOG"
+
+exit $status

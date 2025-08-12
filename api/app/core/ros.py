@@ -14,3 +14,5 @@ except Exception as e:
 
 def get_ros_client():
     return client
+
+ros_manager = get_ros_client()

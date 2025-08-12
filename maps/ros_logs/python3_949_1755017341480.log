@@ -1,0 +1,6 @@
+[INFO] [1755017341.536609182] [spawn_entity]: Spawn Entity started
+[INFO] [1755017341.537331680] [spawn_entity]: Loading entity XML from file /ros2_ws/install/share/turtlebot3_description/urdf/turtlebot3_burger.urdf
+[INFO] [1755017341.540599514] [spawn_entity]: Waiting for service /spawn_entity, timeout = 30
+[INFO] [1755017341.540888054] [spawn_entity]: Waiting for service /spawn_entity
+[INFO] [1755017342.309926826] [spawn_entity]: Calling service /spawn_entity
+[INFO] [1755017342.441796769] [spawn_entity]: Spawn status: SpawnEntity: Successfully spawned entity [tb3]

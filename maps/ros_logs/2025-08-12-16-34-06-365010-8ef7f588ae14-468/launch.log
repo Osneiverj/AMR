@@ -1,0 +1,8 @@
+1755016446.3699791 [DEBUG] [launch.launch_context]: emitting event synchronously: 'launch.events.IncludeLaunchDescription'
+1755016446.3711200 [INFO] [launch]: All log files can be found below /root/maps/ros_logs/2025-08-12-16-34-06-365010-8ef7f588ae14-468
+1755016446.3716669 [INFO] [launch]: Default logging verbosity is set to DEBUG
+1755016446.3731847 [DEBUG] [launch]: processing event: '<launch.events.include_launch_description.IncludeLaunchDescription object at 0x7f7b58ffe5f0>'
+1755016446.3737907 [DEBUG] [launch]: processing event: '<launch.events.include_launch_description.IncludeLaunchDescription object at 0x7f7b58ffe5f0>' ✓ '<launch.event_handlers.on_include_launch_description.OnIncludeLaunchDescription object at 0x7f7b58ffe590>'
+1755016446.3975983 [DEBUG] [launch.launch_context]: emitting event: 'launch.events.Shutdown'
+1755016446.3984244 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7f7b58ffff40>'
+1755016446.3989437 [DEBUG] [launch]: processing event: '<launch.events.shutdown.Shutdown object at 0x7f7b58ffff40>' ✓ '<launch.event_handlers.on_shutdown.OnShutdown object at 0x7f7b58ffece0>'

@@ -1,4 +1,27 @@
 services:
+  tb3_sim:
+    build:
+      context: ./turtlebot3-sim
+      dockerfile: Dockerfile
+    image: turtlebot3-sim:latest
+    container_name: tb3_sim
+    environment:
+      DISPLAY: ":0"
+      WAYLAND_DISPLAY: "wayland-0"
+      XDG_RUNTIME_DIR: "/mnt/wslg/runtime-dir"
+      PULSE_SERVER: "/mnt/wslg/PulseServer"
+      QT_X11_NO_MITSHM: 1
+      ROS_DOMAIN_ID: 30
+      TURTLEBOT3_MODEL: burger
+      GAZEBO_MODEL_PATH: "/opt/ros/humble/share/turtlebot3_gazebo/models:/usr/share/gazebo-11/models"
+      ROS_LOG_DIR: /root/maps/ros_logs
+    networks: [ros_net]
+    ports: ["9090:9090"]
+    volumes:
+      - ./maps:/root/maps
+      - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+      - /run/desktop/mnt/host/wslg:/mnt/wslg
+
   ui_gateway:
     build:                # <– usa el Dockerfile dentro de ui_web/
       context: ./ui_web

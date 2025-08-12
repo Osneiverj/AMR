@@ -1,96 +1,90 @@
 import os
-from ament_index_python.packages import get_package_share_directory
+import shutil
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction, DeclareLaunchArgument, RegisterEventHandler
-from launch.event_handlers import OnProcessExit
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    nav2_bringup_pkg = get_package_share_directory('nav2_bringup')
-    rosbridge_pkg = get_package_share_directory('rosbridge_server')
+    # Ruta al paquete orchestrator
+    orchestrator_dir = get_package_share_directory('orchestrator')
 
-    tb3_launch_file = os.path.join(nav2_bringup_pkg, 'launch', 'tb3_simulation_launch.py')
-    rosbridge_launch_file = os.path.join(rosbridge_pkg, 'launch', 'rosbridge_websocket_launch.xml')
+    # Ruta al mapa dentro del contenedor
+    map_file = os.path.join('/root', 'maps', 'turtle.yaml')
+    # Diagnostics
+    print(f"[system_launch] orchestrator_dir: {orchestrator_dir}")
+    print(f"[system_launch] map_file: {map_file} (exists={os.path.exists(map_file)})")
+    nav2_path = os.path.join(orchestrator_dir, 'launch', 'nav2.launch.py')
+    robot_path = os.path.join(orchestrator_dir, 'launch', 'robot.launch.py')
+    print(f"[system_launch] robot.launch.py: {robot_path} (exists={os.path.exists(robot_path)})")
+    print(f"[system_launch] nav2.launch.py: {nav2_path} (exists={os.path.exists(nav2_path)})")
 
-    # Declaraciones de argumentos
-    declare_world = DeclareLaunchArgument(
-        'world',
-        default_value=os.path.join(nav2_bringup_pkg, 'worlds', 'world_only.model'),
-        description='Gazebo world file'
-    )
-    declare_map = DeclareLaunchArgument(
-        'map',
-        default_value=os.path.join('/root/maps', 'Turtle1.yaml'),
-        description='Map YAML file'
-    )
-    declare_params = DeclareLaunchArgument(
-        'params_file',
-        default_value=os.path.join(nav2_bringup_pkg, 'params', 'nav2_params.yaml'),
-        description='Nav2 parameters file'
-    )
+    # Resolve executables on PATH
+    orch_exec = shutil.which('orchestrator')
+    rb_exec = shutil.which('rosbridge_websocket')
+    print(f"[system_launch] which(orchestrator): {orch_exec}")
+    print(f"[system_launch] which(rosbridge_websocket): {rb_exec}")
 
-    # Lanzamiento de la simulación del TB3 (sin Nav2 todavía)
-    tb3_sim = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(tb3_launch_file),
-        launch_arguments={
-            'use_sim_time': 'True',
-            'slam': 'False',
-            'map': LaunchConfiguration('map'),
-            'params_file': LaunchConfiguration('params_file'),
-            'world': LaunchConfiguration('world'),
-            'use_rviz': 'False',
-            'autostart': 'False'  # No iniciamos Nav2 automáticamente
-        }.items(),
-    )
+    # Feature flags to isolate failures
+    enable_orchestrator = os.environ.get('TB3_ENABLE_ORCHESTRATOR', 'true').lower() in ('1', 'true', 'yes', 'on')
+    enable_rosbridge = os.environ.get('TB3_ENABLE_ROSBRIDGE', 'true').lower() in ('1', 'true', 'yes', 'on')
+    print(f"[system_launch] enable_orchestrator: {enable_orchestrator}")
+    print(f"[system_launch] enable_rosbridge: {enable_rosbridge}")
 
-    # Rosbridge
-    rosbridge = IncludeLaunchDescription(
-        XMLLaunchDescriptionSource(rosbridge_launch_file),
-        launch_arguments={'port': '9090'}.items(),
-    )
+    actions = []
 
-    # Orquestador de UI
-    orchestrator = Node(
-        package='orchestrator',
-        executable='orchestrator',
-        name='ui_orchestrator',
-        output='screen',
-        parameters=[{'use_sim_time': True}]
-    )
+    enable_sim = os.environ.get('TB3_ENABLE_SIM', 'true').lower() in ('1', 'true', 'yes', 'on')
+    enable_nav2 = os.environ.get('TB3_ENABLE_NAV2', 'true').lower() in ('1', 'true', 'yes', 'on')
+    print(f"[system_launch] enable_sim: {enable_sim}")
+    print(f"[system_launch] enable_nav2: {enable_nav2}")
 
-    # Gestor de ciclo de vida de Nav2
-    lifecycle_nodes = [
-        'controller_server',
-        'smoother_server',
-        'planner_server',
-        'behavior_server',
-        'bt_navigator',
-        'waypoint_follower',
-        'velocity_smoother',
-        'amcl',
-        'map_server'
-    ]
-    lifecycle_manager = Node(
-        package='nav2_lifecycle_manager',
-        executable='lifecycle_manager',
-        name='lifecycle_manager_navigation',
-        output='screen',
-        parameters=[{
-            'use_sim_time': True,
-            'autostart': True,
-            'node_names': lifecycle_nodes
-        }]
-    )
+    if enable_sim:
+        actions.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    robot_path
+                )
+            )
+        )
+    else:
+        print('[system_launch] Skipping sim include (TB3_ENABLE_SIM=false)')
 
-    return LaunchDescription([
-        declare_world,
-        declare_map,
-        declare_params,
-        tb3_sim,
-        rosbridge,
-        lifecycle_manager,
-        orchestrator,
-    ])
+    if enable_nav2:
+        actions.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    nav2_path
+                ),
+                launch_arguments={'map': map_file}.items()
+            )
+        )
+    else:
+        print('[system_launch] Skipping nav2 include (TB3_ENABLE_NAV2=false)')
+
+    if enable_orchestrator:
+        actions.append(
+            Node(
+                package='orchestrator',
+                executable='orchestrator',
+                name='orchestrator',
+                output='screen',
+                parameters=[{'use_sim_time': True}]
+            )
+        )
+    else:
+        print('[system_launch] Skipping orchestrator node (TB3_ENABLE_ORCHESTRATOR=false)')
+
+    if enable_rosbridge:
+        actions.append(
+            Node(
+                package='rosbridge_server',
+                executable='rosbridge_websocket',
+                name='rosbridge_websocket',
+                output='screen'
+            )
+        )
+    else:
+        print('[system_launch] Skipping rosbridge_websocket (TB3_ENABLE_ROSBRIDGE=false)')
+
+    return LaunchDescription(actions)

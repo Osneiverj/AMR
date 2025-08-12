@@ -1,5 +1,3 @@
-version: "3.9"
-
 x-wslg-env: &wslg-env
   # Entorno para la interfaz gráfica de usuario a través de WSLg
   DISPLAY: ":0"
