@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Mission Behavior Tree",
+  "description": "A behavior tree definition for a robot mission.",
+  "type": "object",
+  "properties": {
+    "root": {
+      "description": "The root node of the behavior tree.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The type of the root node (e.g., Sequence, Selector).",
+          "type": "string",
+          "enum": ["Sequence", "Selector", "Parallel"]
+        },
+        "children": {
+          "description": "The children of the root node.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/node"
+          }
+        }
+      },
+      "required": ["type", "children"]
+    }
+  },
+  "required": ["root"],
+  "definitions": {
+    "node": {
+      "description": "A node in the behavior tree.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The type of the node, corresponding to a registered behavior.",
+          "type": "string"
+        },
+        "params": {
+          "description": "Parameters for the node.",
+          "type": "object"
+        }
+      },
+      "required": ["type"]
+    }
+  }
+}

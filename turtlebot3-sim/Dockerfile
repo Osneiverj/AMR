@@ -20,8 +20,7 @@ RUN apt-get update && \
 WORKDIR /ros2_ws
 
 # Clone TB3 sources INSIDE workspace
-RUN apt-get update && apt-get install -y git       \
- && git clone -b humble-devel https://github.com/ROBOTIS-GIT/turtlebot3.git src/turtlebot3
+RUN apt-get update && apt-get install -y git && git clone -b humble https://github.com/ROBOTIS-GIT/turtlebot3.git src/turtlebot3
     
 COPY orchestrator ./src/orchestrator
 # Usa bash para cargar correctamente el entorno de ROS 2 y construir

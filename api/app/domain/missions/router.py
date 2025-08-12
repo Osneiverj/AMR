@@ -5,8 +5,19 @@ from .service import create, list_all, remove
 from .model import Mission  # Sigue siendo necesario para el response_model
 from .schemas import MissionCreate
 from app.domain.users.service import get_current_active_user, require_admin  # <-- IMPORTA EL NUEVO ESQUEMA
+from .service import run_mission # Importa el nuevo servicio
 
 router = APIRouter(prefix="/missions", tags=["missions"])
+
+@router.post("/{mid}/run", status_code=202)
+async def run_mission_endpoint(mid: PydanticObjectId, current_user = Depends(require_admin)):
+    try:
+        result = await run_mission(mid)
+        return {"message": "Mission execution started", "result": result}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error starting mission: {e}")
 
 @router.get("/", response_model=list[Mission])
 async def get_missions(map_id: str | None = None, current_user = Depends(get_current_active_user)): # Pydantic v1 compatible

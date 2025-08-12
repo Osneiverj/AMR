@@ -1,52 +1,62 @@
 # api/app/domain/missions/service.py
+import json
+import os
 from beanie import PydanticObjectId
 from typing import List
+from jsonschema import validate, ValidationError
 from .model import Mission
 from app.domain.maps.model import Map # Necesario para la validación
+
+# Cargar el esquema de misión una sola vez al iniciar el módulo
+SCHEMA_PATH = os.path.join(os.path.dirname(__file__), 'mission_schema.json')
+with open(SCHEMA_PATH, 'r') as f:
+    MISSION_SCHEMA = json.load(f)
 
 # ------------------------------------------------------------------
 # CREATE
 # ------------------------------------------------------------------
 async def create(data: dict) -> Mission:
-    # import tardío → evita ciclo (points depende de mapas, etc.)
-    # Si Point es necesario para validación, debería ser importado
-    from app.domain.points.model import Point
-
-    # 1. validar que el mapa existe
+    # 1. Validar que el mapa existe
     if not await Map.get(data["map_id"]):
         raise ValueError(f"Mapa inexistente con ID: {data['map_id']}")
 
-    # 2. validar que todos los IDs de puntos existen
-    # Es más eficiente hacer una sola consulta para todos los puntos si es posible
-    # o iterar como lo tienes.
-    missing_points: List[str] = []
-    if "sequence" in data and isinstance(data["sequence"], list):
-        # Comprobar puntos solo si la secuencia existe y es una lista
-        # Esto podría ser una consulta más eficiente:
-        # existing_points_count = await Point.find(In(Point.id, [PydanticObjectId(pid) for pid in data["sequence"]])).count()
-        # if existing_points_count != len(data["sequence"]):
-        # (Esto requeriría ajustar cómo se manejan los IDs y PydanticObjectId)
+    # 2. Validar la definición de la misión contra el JSON schema
+    try:
+        validate(instance=data.get("definition"), schema=MISSION_SCHEMA)
+    except ValidationError as e:
+        raise ValueError(f"Error de validación en la definición de la misión: {e.message}")
 
-        # Tu enfoque actual es correcto para la validación individual:
-        for point_id_str in data["sequence"]:
-            try:
-                # Beanie espera PydanticObjectId para .get(), no str directamente para IDs MongoDB.
-                # Sin embargo, tu modelo Point usa str para _id. Beanie podría manejarlo,
-                # pero es bueno ser explícito o asegurar que el modelo Point use PydanticObjectId para su id si es el caso.
-                # Asumiendo que Point.get() puede manejar str si el _id es str.
-                if not await Point.get(point_id_str): # Si Point._id es str
-                    missing_points.append(point_id_str)
-            except Exception: # Captura errores de conversión de ID si Point.get espera PydanticObjectId
-                missing_points.append(point_id_str)
-
-    if missing_points:
-        raise ValueError(f"Puntos inexistentes en la secuencia: {', '.join(missing_points)}")
-
-    # 3. crear documento
-    # Los campos como 'created' serán manejados por el modelo Beanie si tienen default_factory.
+    # 3. Crear documento (la lógica de validación de puntos se elimina)
     doc = Mission(**data)
     await doc.insert()
     return doc
+
+from app.core.ros import get_ros_client
+import roslibpy
+import json
+
+async def run_mission(mission_id: PydanticObjectId) -> dict:
+    mission = await Mission.get(mission_id)
+    if not mission:
+        raise ValueError("Mission not found")
+
+    ros_client = get_ros_client()
+    if not ros_client.is_connected:
+        raise ConnectionError("No se pudo conectar con el orquestador de ROS.")
+
+    action_client = roslibpy.ActionClient(ros_client,
+                                          '/execute_mission',
+                                          'orchestrator/ExecuteMission')
+
+    goal = roslibpy.Goal(action_client, roslibpy.Message({
+        'mission_json': json.dumps(mission.definition)
+    }))
+
+    # No bloquearemos la API esperando el resultado, solo enviamos el objetivo.
+    # El frontend se encargará de escuchar el feedback.
+    goal.send()
+
+    return {"status": "sent_to_ros", "mission_id": str(mission.id), "goal_id": goal.goal_id}
 
 
 # ------------------------------------------------------------------

@@ -72,6 +72,15 @@ class Orchestrator(LifecycleNode):
         # Arrancar la pila de navegación poco después de iniciar
         self._startup_timer = self.create_timer(5.0, self._startup_nav2)
 
+        # Servidor de acción para ejecutar misiones
+        self.mission_action_server = ActionServer(
+            self,
+            ExecuteMission,
+            'execute_mission',
+            self.execute_mission_callback,
+            callback_group=self.cb_group
+        )
+
 
     # ---------------------- Helper methods ----------------------
     def _call_change_state(self, client, name: str, transition: int) -> bool:
@@ -326,6 +335,21 @@ class Orchestrator(LifecycleNode):
             ManageLifecycleNodes.Request.SHUTDOWN,
         )
         return response
+
+    # ---------------------- Mission Execution ----------------------
+    def execute_mission_callback(self, goal_handle):
+        self.get_logger().info('Executing mission...')
+        mission_json = goal_handle.request.mission_json
+        self.get_logger().info(f'Mission JSON: {mission_json}')
+
+        # Lógica de ejecución del BT irá aquí
+
+        goal_handle.succeed()
+
+        result = ExecuteMission.Result()
+        result.success = True
+        result.message = "Mission completed successfully (placeholder)"
+        return result
 
 
 def main(args=None):

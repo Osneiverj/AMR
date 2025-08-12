@@ -1,0 +1,10 @@
+/* styles.css or your preferred css file */
+.react-flow__minimap {
+  background-color: #f0f0f0;
+}
+
+.react-flow__controls {
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  padding: 5px;
+}

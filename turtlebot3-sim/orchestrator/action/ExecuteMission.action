@@ -1,0 +1,6 @@
+string mission_json
+---
+bool success
+string message
+---
+string status

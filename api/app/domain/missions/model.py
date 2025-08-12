@@ -7,9 +7,9 @@ from pydantic import Field # <-- IMPORTAR Field
 class Mission(Document):
     name: str
     map_id: str                      # referencia por id
-    sequence: List[str]              # lista de point._id
+    definition: dict                 # Estructura del árbol de comportamiento
     loop: bool = False
-    created: datetime = Field(default_factory=datetime.utcnow) # <-- CAMBIADO
+    created: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:
         name = "missions"

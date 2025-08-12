@@ -12,6 +12,7 @@ setup(
         ]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/system_launch.py']),
+        ('share/' + package_name + '/action', ['action/ExecuteMission.action'])
     ],
     install_requires=['rclpy'],
     entry_points={

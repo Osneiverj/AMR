@@ -12,7 +12,11 @@
   <depend>lifecycle_msgs</depend>
   <depend>nav2_msgs</depend>
   <depend>slam_toolbox_msgs</depend>
-  <exec_depend>setuptools</exec_depend>
+  <build_depend>ros2idl_default_generators</build_depend>
+
+  <exec_depend>ros2idl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
     <build_type>ament_python</build_type>

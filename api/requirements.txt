@@ -8,6 +8,7 @@ pydantic==1.10.18 # Beanie 1.29.0 necesita pydantic >=1.10.12, así que esto est
 python-multipart==0.0.9
 python-jose[cryptography]
 passlib[bcrypt]
+jsonschema==4.22.0
 
 roslibpy==1.4.0
 
